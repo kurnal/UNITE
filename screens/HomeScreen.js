@@ -42,7 +42,9 @@ export default class HomeScreen extends React.Component {
             </View>
 
             <Text style={styles.getStartedText}>
-              Arko is a beautiful boy
+                I wrote some guidelines for the functionalities on each page. Please expand and edit because
+                we are trying to big and bright things out here kids. We want students to use this magic ass
+                app to find themselves and have fun on campus.
             </Text>
           </View>
 
