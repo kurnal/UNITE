@@ -4,7 +4,7 @@ import { ExpoLinksView } from '@expo/samples';
 
 export default class VaultScreen extends React.Component {
   static navigationOptions = {
-    title: 'Treasure',
+    title: 'Vault',
   };
 
   render() {

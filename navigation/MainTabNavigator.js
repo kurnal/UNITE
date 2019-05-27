@@ -69,7 +69,6 @@ ProfileStack.navigationOptions = {
   ),
 };
 
-
 const SettingsStack = createStackNavigator({
   Settings: SettingsScreen,
 });

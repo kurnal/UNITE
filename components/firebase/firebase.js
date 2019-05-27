@@ -3,7 +3,7 @@ import 'firebase/firestore';
 import 'firebase/auth';
 
 
-var firebaseConfig = {
+var config = {
     apiKey: "AIzaSyDIIkrmz8iKFvZqOQvPtSWGkJLClAIRGX0",
     authDomain: "unite-beta.firebaseapp.com",
     databaseURL: "https://unite-beta.firebaseio.com",
@@ -12,8 +12,16 @@ var firebaseConfig = {
     messagingSenderId: "471711965394",
     appId: "1:471711965394:web:063fd52759e79e14"
   };
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  firebase.firestore().settings({ timestampsInSnapshots: true });
 
-export default firebase
+  // // Initialize Firebase
+  // firebase.initializeApp(firebaseConfig);
+  // firebase.firestore().settings({ timestampsInSnapshots: true });
+
+class Firebase {
+  constructor() {
+    firebase.initializeApp(config);
+    this.auth = firebase.auth();
+  }
+}
+
+export default Firebase

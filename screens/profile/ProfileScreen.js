@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text } from 'react-native';
 import { ExpoLinksView } from '@expo/samples';
 
 export default class ProfileScreen extends React.Component {
+  
   static navigationOptions = {
     title: 'Profile',
   };
