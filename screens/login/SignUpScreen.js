@@ -1,6 +1,7 @@
 import React from 'react'
 import { StyleSheet, Text, TextInput, View, Button } from 'react-native'
 import firebase from 'react-native-firebase'
+import { GoogleSignin } from 'react-native-google-signin';
 
 export default class SignUp extends React.Component {
   state = { email: '', password: '', errorMessage: null }
@@ -12,6 +13,24 @@ export default class SignUp extends React.Component {
       .createUserWithEmailAndPassword(email, password)
       .then(user => this.props.navigation.navigate('App'))
       .catch(error => this.setState({ errorMessage: error.message }))
+  }
+
+  googleLogin = async () => {
+    try {
+      // Add any configuration settings here:
+      await GoogleSignin.configure();
+  
+      const data = await GoogleSignin.signIn();
+  
+      // create a new firebase credential with the token
+      const credential = firebase.auth.GoogleAuthProvider.credential(data.idToken, data.accessToken)
+      // login with credential
+      const currentUser = await firebase.auth().signInWithCredential(credential);
+  
+      console.info(JSON.stringify(currentUser.toJSON()));
+    } catch (e) {
+      () => this.props.navigation.navigate('App')
+    }
   }
 
   render() {
@@ -41,6 +60,9 @@ export default class SignUp extends React.Component {
         <Button
           title="Already have an account? Login"
           onPress={() => this.props.navigation.navigate('Login')}
+        />
+        <Button
+          title="Google Sign In" onPress={this.googleLogin}
         />
       </View>
     )

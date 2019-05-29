@@ -1,8 +1,8 @@
 import React from 'react'
-import { StyleSheet, Text, TextInput, View, Button } from 'react-native'
+import { View, Button, StyleSheet, Text, TextInput } from 'react-native'
 import firebase from 'react-native-firebase'
 
-export default class Login extends React.Component {
+ export default class Login extends React.Component {
   state = { email: '', password: '', errorMessage: null }
 
   handleLogin = () => {
@@ -61,3 +61,6 @@ const styles = StyleSheet.create({
     marginTop: 8
   }
 })
+
+
+ 
