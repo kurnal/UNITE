@@ -1,3 +1,4 @@
+ios/effortless-college-living/GoogleService-Info.plist
 node_modules/**/*
 .expo/*
 npm-debug.*
@@ -5,3 +6,4 @@ npm-debug.*
 *.p12
 *.key
 *.mobileprovision
+node_modules

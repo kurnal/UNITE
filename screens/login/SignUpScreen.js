@@ -11,7 +11,7 @@ export default class SignUp extends React.Component {
     firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
-      .then(user => this.props.navigation.navigate('App'))
+      .then(user => this.props.navigation.navigate('ChooseAccountType'))
       .catch(error => this.setState({ errorMessage: error.message }))
   }
 

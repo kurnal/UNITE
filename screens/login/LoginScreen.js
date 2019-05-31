@@ -2,17 +2,47 @@ import React from 'react'
 import { View, Button, StyleSheet, Text, TextInput } from 'react-native'
 import firebase from 'react-native-firebase'
 
- export default class Login extends React.Component {
+
+export default class Login extends React.Component {
   state = { email: '', password: '', errorMessage: null }
+
+  constructor() {
+    super();
+    this.db = firebase.firestore().collection('Users');
+  }
 
   handleLogin = () => {
     const { email, password } = this.state
     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => this.props.navigation.navigate('App'))
-      .catch(error => this.setState({ errorMessage: error.message }))
+      .then(
+        user => {
+          this.db.doc(firebase.auth().currentUser.uid).get()
+            .then(doc => {
+              if (!doc.exists) {
+                this.props.navigation.navigate('ChooseAccountType');
+              } else {
+                if (doc.data().StudentOrOrganization === "Student") {
+                  this.props.navigation.navigate('Student');
+                } else if (doc.data().StudentOrOrganization === "Organization") {
+                  this.props.navigation.navigate('Organization');
+                } else {
+                  this.props.navigation.navigate('ChooseAccountType');
+                }
+              }
+            })
+            .catch(err => {
+              console.log('Error getting document', err);
+            });
+        }
+      )
+      .catch(error => 
+        this.setState({ errorMessage: error.message })
+        )
   }
+
+
 
   render() {
     return (
@@ -63,4 +93,4 @@ const styles = StyleSheet.create({
 })
 
 
- 
+

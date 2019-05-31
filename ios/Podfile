@@ -9,11 +9,13 @@ target 'effortless-college-living' do
       "Core"
     ],
     :inhibit_warnings => true
-    
+    3
   # Required by RNFirebase
   pod 'Firebase/Core', '~> 5.20.1'
   
 ## [OPTIONAL PODS] - comment out pods for firebase products you won't be using.
+
+pod 'Firebase/Firestore'
 #  pod 'Firebase/AdMob'
 #  pod 'Firebase/Analytics'
   pod 'Firebase/Auth'
