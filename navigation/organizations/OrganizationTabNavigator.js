@@ -2,16 +2,16 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 
-import TabBarIcon from '../components/TabBarIcon';
-import HomeScreen from '../screens/Students/HomeScreen';
-import ExploreScreen from '../screens/Students/explore/ExploreScreen';
-import ProfileScreen from '../screens/Students/profile/StudentProfileScreen';
-import VaultScreen from '../screens/Students/vault/VaultScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+import TabBarIcon from '../../components/TabBarIcon';
+import HomeScreen from '../../screens/Organizations/HomeScreen';
+import ManageScreenNavigator from './manage/ManageScreenNavigator';
+import ProfileScreen from '../../screens/Organizations/profile/OrgProfileScreen';
+import SettingsScreen from '../../screens/SettingsScreen';
 
 const HomeStack = createStackNavigator({
   Home: HomeScreen,
 });
+
 
 HomeStack.navigationOptions = {
   tabBarLabel: 'Home',
@@ -27,30 +27,18 @@ HomeStack.navigationOptions = {
   ),
 };
 
-const ExploreStack = createStackNavigator({
-  Explore: ExploreScreen,
+const ManageStack = createStackNavigator({
+  Manage: ManageScreenNavigator,
+},{
+  headerMode: 'none'
 });
 
-ExploreStack.navigationOptions = {
-  tabBarLabel: 'Explore',
+ManageStack.navigationOptions = {
+  tabBarLabel: 'Manage',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
       name={Platform.OS === 'ios' ? 'ios-search' : 'md-search'}
-    />
-  ),
-};
-
-const VaultStack = createStackNavigator({
-  Vault: VaultScreen,
-});
-
-VaultStack.navigationOptions = {
-  tabBarLabel: 'Vault',
-  tabBarIcon: ({ focused }) => (
-    <TabBarIcon
-      focused={focused}
-      name={Platform.OS === 'ios' ? 'ios-aperture' : 'md-dungeon'}
     />
   ),
 };
@@ -85,8 +73,7 @@ SettingsStack.navigationOptions = {
 
 export default createBottomTabNavigator({
   HomeStack,
-  ExploreStack,
-  VaultStack,
+  ManageStack,
   ProfileStack,
   SettingsStack
 });

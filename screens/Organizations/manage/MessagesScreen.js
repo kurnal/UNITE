@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
-export default class ManageScreen extends React.Component {
+export default class MessagesScreen extends React.Component {
   
   static navigationOptions = {
     title: 'Manage',

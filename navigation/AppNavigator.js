@@ -9,8 +9,8 @@ import LoginScreen from '../screens/login/LoginScreen';
 
 import ChooseAccountTypeScreen from '../screens/ChooseAccountTypeScreen';
 
-import StudentTabNavigator from './StudentTabNavigator';
-import OrganizationTabNavigator from './OrganizationTabNavigator';
+import StudentTabNavigator from './students/StudentTabNavigator';
+import OrganizationTabNavigator from './organizations/OrganizationTabNavigator';
 
 
 const StudentStack = createStackNavigator({ Student: StudentTabNavigator });
