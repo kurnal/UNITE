@@ -29,7 +29,6 @@ EventStack.navigationOptions = {
   tabBarLabel: 'Events',
 };
 
-
 const MeetingsStack = createSwitchNavigator({
   Meetings: MeetingsScreen,
 });

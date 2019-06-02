@@ -22,8 +22,7 @@ export default class EventsScreen extends React.Component {
             {
               console.log(this.props.navigation);
             this.props.navigation.push('EventCreation')
-            }
-          
+            }  
           }
           containerStyle={styles.eventsFormButton}
         />
