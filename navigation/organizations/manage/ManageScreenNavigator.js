@@ -1,6 +1,7 @@
 import React from 'react';
 import { Platform } from 'react-native';
 import { createMaterialTopTabNavigator, createSwitchNavigator, createStackNavigator } from 'react-navigation';
+import { HeaderBackButton } from 'react-navigation';
 
 import ManageScreen from '../../../screens/Organizations/manage/ManageScreen';
 
@@ -19,14 +20,34 @@ ManageStack.navigationOptions = {
 };
 
 const EventStack = createStackNavigator({
-  Events: EventsScreen,
-  EventCreation: EventCreationScreen,
+  Events: {
+    screen: EventsScreen,
+    navigationOptions: {
+      header: null
+    }
+  },
+  EventCreation: {
+    screen: EventCreationScreen,
+  }
 },{
-  headerMode: 'none'
+  mode: 'modal',
+  headerMode: 'screen',
+  cardStyle: { backgroundColor: '#F6F6F6' }
 });
 
 EventStack.navigationOptions = {
   tabBarLabel: 'Events',
+};
+
+EventStack.navigationOptions = ({ navigation }) => {
+  let tabBarVisible = true;
+  if (navigation.state.index > 0) {
+    tabBarVisible = false;
+  }
+
+  return {
+    tabBarVisible,
+  };
 };
 
 const MeetingsStack = createSwitchNavigator({
@@ -47,7 +68,7 @@ MessagesStack.navigationOptions = {
 
 export default createMaterialTopTabNavigator({
   ManageStack,
-  EventStack,
+  Events: EventStack,
   MeetingsStack,
-  MessagesStack
+  MessagesStack,
 });
