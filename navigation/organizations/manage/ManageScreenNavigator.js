@@ -8,7 +8,9 @@ import ManageScreen from '../../../screens/Organizations/manage/ManageScreen';
 import EventsScreen from '../../../screens/Organizations/manage/events/EventsScreen';
 import EventCreationScreen from '../../../screens/Organizations/manage/events/EventCreationScreen';
 
-import MeetingsScreen from '../../../screens/Organizations/manage/MeetingsScreen';
+import MeetingsScreen from '../../../screens/Organizations/manage/meetings/MeetingsScreen';
+import MeetingsSettingsScreen from '../../../screens/Organizations/manage/meetings/MeetingsSettingsScreen';
+
 import MessagesScreen from '../../../screens/Organizations/manage/MessagesScreen';
 
 const ManageStack = createSwitchNavigator({
@@ -32,7 +34,7 @@ const EventStack = createStackNavigator({
 },{
   mode: 'modal',
   headerMode: 'screen',
-  cardStyle: { backgroundColor: '#F6F6F6' }
+
 });
 
 EventStack.navigationOptions = {
@@ -52,6 +54,7 @@ EventStack.navigationOptions = ({ navigation }) => {
 
 const MeetingsStack = createSwitchNavigator({
   Meetings: MeetingsScreen,
+  MeetingsSettings: MeetingsSettingsScreen
 });
 
 MeetingsStack.navigationOptions = {

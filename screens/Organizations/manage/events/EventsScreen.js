@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Button, Dimensions } from 'react-native';
+import { StyleSheet, Button, Dimensions, ScrollView, RefreshControl } from 'react-native';
 import { Icon } from 'react-native-elements'
 import { Container, View, DeckSwiper, Card, CardItem, Thumbnail, Text, Left, Right, Body } from 'native-base'
 import Carousel, { Pagination } from 'react-native-snap-carousel';
@@ -7,18 +7,22 @@ import Modal from "react-native-modal";
 
 import firebase from 'react-native-firebase';
 import update from 'immutability-helper';
+import moment from 'moment'
+
+import EventCreationScreen from './EventCreationScreen'
 
 export default class EventsScreen extends React.Component {
 
-
   static navigationOptions = {
-    title: 'Events',
+    title: '',
   };
 
   state = {
     events: [],
     activeSlide: 0,
-    isModalVisible: false
+    isModalVisible: false,
+    refreshing: false,
+    noEvents: false
   }
 
   toggleModal = () => {
@@ -36,45 +40,93 @@ export default class EventsScreen extends React.Component {
   }
 
 
+  obtainEventsInfo = () => {
+    return Promise.resolve(
+      this.eventsRef.where('happened', '==', false).get()
+        .then(snapshot => {
+
+          if (snapshot.empty) {
+            this.setState({ noEvents: true })
+            return;
+          }
+
+          this.setState({ events: [], noEvents: false });
+          let counter = 0;
+
+          snapshot.forEach(doc => {
+            holder = this.state.events.concat({
+              eventName: doc.id,
+              eventDescription: doc.data().eventDescription,
+              startDate: doc.data().startDate,
+              endDate: doc.data().endDate,
+              capacity: doc.data().capacity,
+              public: doc.data().public,
+              open: doc.data().open,
+              qr_encode: doc.data().qr_encode,
+              happened: doc.data().happened,
+              attending: doc.data().attending,
+              index: counter++,
+            });
+
+            this.setState({
+              events: holder
+            });
+
+          });
+        })
+        .catch(err => {
+          console.log('Error getting documents', err);
+        })
+    );
+  }
+
+  checkIfEventHappened = () => {
+
+    return Promise.resolve(
+      this.eventsRef.where('happened', '==', false).get()
+        .then(snapshot => {
+
+          if (snapshot.empty) {
+            console.log('No matching documents.');
+            return;
+          }
+
+          snapshot.forEach(doc => {
+
+            if (moment().isAfter(moment(doc.data().endDate, 'LLLL'))) {
+              this.eventsRef.doc(doc.id).update(({
+                happened: true
+              }));
+
+            }
+          });
+        })
+    );
+  }
+
   componentDidMount() {
+    this.checkIfEventHappened().then(
+      () => this.obtainEventsInfo()
+    );
+  }
 
-    this.eventsRef.where('happened', '==', false).get()
-      .then(snapshot => {
+  _onRefresh = () => {
+    this.setState({ refreshing: true });
 
-        if (snapshot.empty) {
-          console.log('No matching documents.');
-          return;
-        }
-
-        snapshot.forEach(doc => {
-          holder = this.state.events.concat({
-            eventName: doc.id,
-            eventDescription: doc.data().eventDescription,
-            startDate: doc.data().startDate,
-            endDate: doc.data().endDate,
-            capacity: doc.data().capacity,
-            public: doc.data().public,
-            open: doc.data().open,
-            qr_encode: doc.data().qr_encode,
-            happened: doc.data().happened,
-            attending: doc.data().attending
-          });
-
-          this.setState({
-            events: holder
-          });
-
-        });
+    this.checkIfEventHappened().then(
+      this.obtainEventsInfo().then(() => {
+        this.setState(
+          {
+            activeSlide: 0,
+            refreshing: false
+          }
+        )
       })
-      .catch(err => {
-        console.log('Error getting documents', err);
-      });
+    );
 
   }
 
   componentDidUpdate() {
-
-
 
     this.eventsRef.where('happened', '==', false)
       .onSnapshot(querySnapshot => {
@@ -87,12 +139,15 @@ export default class EventsScreen extends React.Component {
         querySnapshot.docChanges.forEach(change => {
 
           if (change.type === 'modified') {
-            console.log('New Dude: ', change.doc.data());
-            this.setState({ events: update(this.state.events, { 0: { attending: { $set: change.doc.data().attending } } }) })
+            eventName = { eventName: change.doc.id }
+            finalHolder = update(eventName, { $merge: change.doc.data() })
+            place = change._newIndex
+            this.setState({ events: update(this.state.events, { [place]: { $set: finalHolder } }) })
           }
 
         });
       });
+
   }
 
   _renderItem({ item, index }) {
@@ -141,7 +196,9 @@ export default class EventsScreen extends React.Component {
               type='font-awesome'
               color='#f50'
               size={40}
-              onPress={() => { this.props.navigation.push('EventCreation') }}
+              onPress={() => {
+                this.props.navigation.push('EventCreation', { eventName: item.eventName })
+              }}
             />
             <Text style={styles.captionText}> Revise </Text>
           </Body>
@@ -172,48 +229,68 @@ export default class EventsScreen extends React.Component {
     );
   }
 
-  render() {
+  renderNoEventsFiller = () => {
+    if (this.state.noEvents) {
+      return (
+        <Card style={styles.card}>
+          <CardItem header style={styles.cardHeader}>
+            <Text style={[styles.captionText, { color: 'white' }]}> No Events </Text>
+          </CardItem>
 
+          <Body>
+            <Icon
+              raised
+              name='magic'
+              type='font-awesome'
+              color='#f50'
+              size={40}
+              onPress={() => { this.props.navigation.push('EventCreation') }}
+            />
+            <Text style={styles.captionText}> Create an Event to get this party started! </Text>
+          </Body>
+
+        </Card>
+      )
+    }
+  }
+
+
+  render() {
     return (
-      <Container>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={this.state.refreshing}
+            onRefresh={this._onRefresh}
+          />
+        }>
+
         <View style={styles.eventsFormButton}>
           <Icon
             raised
             name='thumb-tack'
             type='font-awesome'
             color='#f50'
-            onPress={() => {
-              this.props.navigation.push('EventCreation')
-            }
-            }
+            onPress={() => { this.props.navigation.push('EventCreation') }}
           />
         </View>
+
+        {this.renderNoEventsFiller()}
 
         <View>
           <Carousel
             ref={(c) => { this._carousel = c; }}
             data={this.state.events}
-            renderItem={this._renderItem}
+            renderItem={this._renderItem.bind(this)}
             sliderWidth={this.width}
             itemWidth={this.width}
             onSnapToItem={(index) => this.setState({ activeSlide: index })}
             layout='tinder'
+            loop={true}
           />
           {this.pagination}
         </View>
-
-        <View style={{ flex: 1 }}>
-          <Button title="Show modal" onPress={this.toggleModal} />
-          <Modal isVisible={this.state.isModalVisible}>
-            <View style={{ flex: 1 }}>
-              <Text>Hello!</Text>
-              <Button title="Hide modal" onPress={this.toggleModal} />
-            </View>
-          </Modal>
-        </View>
-        {/* <Button title="gay" onPress={() => console.log(this.state.events[0].attending)} /> */}
-
-      </Container>
+      </ScrollView>
 
 
     );

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
-export default class MeetingsScreen extends React.Component {
+export default class MeetingsTimerScreen extends React.Component {
   
   static navigationOptions = {
     title: 'Manage',
@@ -30,8 +30,6 @@ export default class MeetingsScreen extends React.Component {
 
         </Text>
       </ScrollView>
-
-
 
     );
   }

@@ -1,10 +1,13 @@
 import React from 'react';
-import { ScrollView, View, StyleSheet, TextInput, TouchableOpacity, Text } from 'react-native';
-import { Avatar, Icon, withTheme } from 'react-native-elements';
-import { ImagePicker } from 'react-native-image-picker'
+// import { ScrollView, View, StyleSheet, TextInput, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, TouchableHighlight, Text } from 'react-native';
+// import { ImagePicker } from 'react-native-image-picker'
+
+var NativeElementIcon = require('react-native-elements/src/icons/Icon.js')
 import DatePicker from 'react-native-datepicker'
 import { SegmentedControls } from 'react-native-radio-buttons'
 
+import { Container, Header, Content, Picker, Item, Input, Textarea, Form, Icon, Button } from 'native-base'
 
 import moment from 'moment'
 import firebase from 'react-native-firebase';
@@ -15,438 +18,330 @@ export default class EventCreationScreen extends React.Component {
         title: 'Create Event',
     };
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
         this.ref = firebase.firestore().collection('Users')
         this.current = firebase.auth().currentUser;
 
         this.state = {
-            eventPhoto: '',
             eventName: '',
             eventDescription: '',
             startDate: '',
             endDate: '',
+            location: '',
             capacity: '',
-            public: false,
-            open: true,
+            privacy: '',
+            status: '',
 
-            componentVisibility: {
-                publicComponent: false,
-                closedComponent: true,
-            },
-            minDate: new Date(moment().add(1, 'days').calendar()),
-            maxDate: new Date(moment().add(3, 'month').calendar()),
-            focusedInput: {
-                borderBottomWidth: 3
-            }
+            minDate: new Date (new Date(moment().add(1, 'days')).setHours(24,0,0,0)),
+            maxDate: new Date(new Date(moment().add(3, 'month')).setHours(0,0,0,0)),
+            oldEventName: '',
+            isEditing: false
         };
 
+        this.itemID = this.props.navigation.getParam('eventName', 'NO-ID');
     }
 
-    privacyOptions = [
-        "Public",
-        "Private",
-    ]
+    componentDidMount() {
 
-    eventTypeOptions = [
-        "Open",
-        "Closed",
-    ]
+        if (this.itemID !== 'NO-ID') {
+            this.ref.doc(this.current.uid).collection('Events').doc(this.itemID).get().then(
+                doc => {
+                    this.setState({
+                        eventName: doc.id,
+                        oldEventName: doc.id,
+                        eventDescription: doc.data().eventDescription,
+                        startDate: doc.data().startDate,
+                        endDate: doc.data().endDate,
+                        location: doc.data().location,
+                        capacity: doc.data().capacity,
+                        privacy: doc.data().privacy,
+                        status: doc.data().status,
+                        isEditing: true
+                    })
+                }
+            )
+        }
+    }
 
-    onFocus = () => {
+    setEventPrivacy(value) {
+
         this.setState({
-
+            privacy: value
         })
+
+        if (value === 'private') {
+            this.setState({
+                status: 'closed',
+                capacity: 'unlimited'
+            })
+        }
+
+        if (value === 'private' && this.state.status === 'closed') {
+            this.setState({
+                capacity: ''
+            })
+        }
+
     }
 
-    onBlur = () => {
+    setEventStatus = (value) => {
         this.setState({
-
+            status: value
         })
-    }
 
-    getEventPicture = () => {
-        ImagePicker.openPicker({
-            width: 300,
-            height: 400,
-            cropping: true
-        }).then(image => {
-            console.log(image);
-        });
-    }
-
-    setEventPrivacy = (data) => {
-
-        if (data === 'Public') {
-            this.setState(
-                {
-                    public: true,
-                    componentVisibility: {
-                        publicComponent: true
-                    }
-                }
-            )
+        if (value === 'open') {
+            this.setState({
+                capacity: 'unlimited'
+            })
         }
 
-        if (data === 'Private') {
-            this.setState(
-                {
-                    public: false,
-                    componentVisibility: {
-                        publicComponent: false,
-                        closedComponent: true,
-                    }
-                }
-            )
+        if (value === 'closed' && this.state.privacy === 'public') {
+            this.setState({
+                capacity: ''
+            })
         }
+
     }
 
-    setEventType = (data) => {
-
-        if (data === 'Open') {
-            this.setState(
-                {
-                    open: true,
-                    componentVisibility: {
-                        publicComponent: true,
-                        closedComponent: false
-                    },
-                    capacity: ''
-                }
-            )
-        }
-
-        if (data === 'Closed') {
-            this.setState(
-                {
-                    open: false,
-                    componentVisibility: {
-                        publicComponent: true,
-                        closedComponent: true
-                    }
-                }
-            )
-        }
-    }
-
-    renderPublicComponent() {
-        if (this.state.componentVisibility.publicComponent) {
-            return (
-                <View style={styles.segContainerBot}>
-                    <SegmentedControls
-                        optionStyle={styles.segmentedControls}
-                        containerBorderRadius={0}
-                        containerBorderWidth={1}
-                        tint={'#FF4136'}
-                        selectedTint={'white'}
-                        backTint={'white'}
-                        options={this.eventTypeOptions}
-                        onSelection={this.setEventType.bind(this)}
-                        selectedOption={(this.state.open) ? 'Open' : 'Closed'}
-                    />
-                </View>
-            )
-        }
-    }
-
-    renderClosedComponent() {
-        if (this.state.componentVisibility.closedComponent) {
-            return (
-                <View style={styles.inputContainer}>
-                    <Icon
-                        style={styles.inputIcon}
-                        name='people'
-                        size={24}
-                        color='black'
-                        underlayColor='gold'>
-                    </Icon>
-                    <TextInput placeholder='Event Capacity'
-                        style={styles.input}
-                        value={this.state.capacity}
-                        onChangeText={capacity => this.setState({ capacity })}
-                        keyboardType='numeric' />
-                </View>
-            )
-        }
-    }
-
-    submitEvent = () => {
+    postEvent = () => {
         this.ref.doc(this.current.uid).collection('Events').doc(this.state.eventName).set({
-            eventPhoto: this.state.eventPhoto,
             eventDescription: this.state.eventDescription,
             startDate: this.state.startDate,
             endDate: this.state.endDate,
+            location: this.state.location,
             capacity: this.state.capacity,
-            public: this.state.public,
-            open: this.state.open,
-            qr_encode: this.current.uid + "" + this.state.eventName,
+            privacy: this.state.privacy,
+            status: this.state.status,
+            qr_encode: this.current.uid + " " + this.state.eventName,
             happened: false,
-        }).then(() => this.props.navigation.navigate('Manage'))
+            attending: 0
+        }, { merge: true }).then(() => this.props.navigation.pop())
+    }
+
+    submitButton = () => {
+
+        if (this.state.isEditing && this.state.oldEventName !== this.state.eventName) {
+                this.ref.doc(this.current.uid).collection('Events').doc(this.state.oldEventName).delete()
+                    .then(this.postEvent())
+        } else {
+            this.postEvent()
+        }
+
     }
 
     render() {
         return (
-            <View styles={styles.MainContainer}>
-                <View>
-                    <View style={styles.segContainer}>
-                        <SegmentedControls
-                            optionStyle={styles.segmentedControls}
-                            containerBorderRadius={0}
-                            containerBorderWidth={1}
-                            tint={'#FF4136'}
-                            selectedTint={'white'}
-                            backTint={'white'}
-                            options={this.privacyOptions}
-                            onSelection={this.setEventPrivacy.bind(this)}
-                            selectedOption={(this.state.public) ? 'Public' : 'Private'}
-                        />
-                    </View>
-                    {this.renderPublicComponent()}
+
+            <Container style={styles.container}>
+
+                <View style={styles.helpButtonContainer}>
+                    <Text style={{ fontFamily: 'Avenir', flex: 1, marginLeft: 10 }}> Enter the information below.  </Text>
+                    <NativeElementIcon.Icon
+                        raised
+                        name='flag'
+                        type='font-awesome'
+                        color='#f50'
+                        size={24}
+                        style={{ flex: 1 }}
+                        onPress={() => console.log('help coming soon')}
+                    />
                 </View>
 
-                <View styles={styles.bodyContainer}>
-                    <View style={styles.inputContainer}>
-                        <Icon
-                            style={styles.inputIcon}
-                            name='event'
-                            size={24}
-                            color='black'
-                            underlayColor='gold'>
-                        </Icon>
-                        <TextInput
+                <Form style={styles.formContainer}>
+
+                    <Item style={{ flexDirection: 'row' }}>
+                        <Icon active name="clipboard" style={[styles.icon, { flex: 1 }]} />
+                        <Item picker style={{ borderBottomWidth: 0, flex: 20 }}>
+                            <Picker
+                                mode="dropdown"
+                                placeholder="Select your Event Privacy"
+                                placeholderStyle={{ color: '#C0C0C0', fontFamily: 'Avenir' }}
+                                placeholderIconColor="#007aff"
+                                selectedValue={this.state.privacy}
+                                onValueChange={this.setEventPrivacy.bind(this)}
+                            >
+                                <Picker.Item label="Public" value="public" />
+                                <Picker.Item label="Private" value="private" />
+                            </Picker>
+                        </Item>
+                        <Icon name="arrow-down" style={{ flex: 1 }} />
+                    </Item>
+
+                    <Item style={{ flexDirection: 'row' }}>
+                        <Icon active ios='ios-key' android="md-key" style={[styles.icon, { flex: 1 }]} />
+                        <Item picker style={{ borderBottomWidth: 0, flex: 20 }}>
+                            <Picker
+                                mode="dropdown"
+                                enabled={(this.state.privacy === 'public') ? true : false}
+                                placeholder="Select your Event Status"
+                                placeholderStyle={{ color: '#C0C0C0', fontFamily: 'Avenir' }}
+                                placeholderIconColor="#007aff"
+                                selectedValue={this.state.status}
+                                onValueChange={this.setEventStatus.bind(this)}
+                            >
+                                <Picker.Item label="Open" value="open" />
+                                <Picker.Item label="Closed" value="closed" />
+                            </Picker>
+                        </Item>
+                        <Icon name="arrow-down" style={{ flex: 1 }} />
+                    </Item>
+
+                    <Item>
+                        <Icon active ios='ios-planet' android="md-planet" style={styles.icon} />
+                        <Input
                             style={styles.input}
-                            placeholder='Event Name'
+                            placeholder='Event Title'
                             value={this.state.eventName}
-                            onFocus={() => this.onFocus()}
-                            onBlur={() => this.onBlur()}
-                            onChangeText={eventName =>
-                                this.setState({ eventName })
-                            } />
-                    </View>
-                    {this.renderClosedComponent()}
-                    <View style={styles.dateContainer}>
-                        <View>
-                            <DatePicker
-                                style={{ width: 200, padding: 5 }}
-                                date={this.state.startDate}
-                                mode="datetime"
-                                placeholder="Start Time"
-                                format='lll'
-                                minDate={this.state.minDate}
-                                maxDate={this.state.maxDate}
-                                confirmBtnText="Confirm"
-                                cancelBtnText="Cancel"
-                                customStyles={{
-                                    dateIcon: {
-                                        position: 'absolute',
-                                        left: 0,
-                                        top: 4,
-                                        marginLeft: 0
-                                    },
-                                    dateInput: {
-                                        fontFamily: 'Avenir',
-                                        marginLeft: 40,
-                                        marginRight: 0,
-                                        borderWidth: 0,
-                                        borderBottomWidth: 1,
-                                        borderColor: 'black',
-                                        borderRadius: 5,
-                                        backgroundColor: 'white',
-                                        shadowColor: '#000',
-                                        shadowRadius: 2,
-                                        shadowOpacity: 1.5,
-                                        shadowOffset: { width: 0, height: 2 },
-                                    },
-                                    dateText: {
-                                        color: 'black'
-                                    }
-                                }}
-                                onDateChange={startDate => { this.setState({ startDate }) }}
-                                onFocus={() => this.onFocus()}
-                                onBlur={() => this.onBlur()}
-                            />
-                        </View>
-                        <View>
-                            <DatePicker
-                                style={{ width: 200, padding: 5 }}
-                                date={this.state.endDate}
-                                mode="datetime"
-                                placeholder="End Time"
-                                format='lll'
-                                minDate={this.state.minDate}
-                                maxDate={this.state.maxDate}
-                                confirmBtnText="Confirm"
-                                cancelBtnText="Cancel"
-                                customStyles={{
-                                    dateIcon: {
-                                        position: 'absolute',
-                                        left: 0,
-                                        top: 4,
-                                        marginLeft: 0
-                                    },
-                                    dateInput: {
-                                        fontFamily: 'Avenir',
-                                        marginLeft: 40,
-                                        marginRight: 0,
-                                        borderWidth: 0,
-                                        borderBottomWidth: 1,
-                                        borderColor: 'black',
-                                        borderRadius: 5,
-                                        backgroundColor: 'white',
-                                        shadowColor: '#000',
-                                        shadowRadius: 2,
-                                        shadowOpacity: 1.5,
-                                        shadowOffset: { width: 0, height: 2 },
-                                    },
-                                    dateText: {
-                                        color: 'black'
-                                    }
-                                }}
-                                onDateChange={endDate => { this.setState({ endDate }) }}
-                                onFocus={() => this.onFocus()}
-                                onBlur={() => this.onBlur()}
-                            />
-                        </View>
-                    </View>
-                    <View style={styles.textAreaContainer}>
-                        <TextInput
-                            style={[styles.textArea, (this.props.isFocused) ? this.state.focusedInput : {}]}
-                            autoCorrect={false}
-                            placeholder='Event Description'
-                            multiline={true}
-                            numberOfLines={4}
-                            size={24}
-                            onChangeText={eventDescription => this.setState({ eventDescription })}
+                            placeholderTextColor='#C0C0C0'
+                            onChangeText={eventName => this.setState({ eventName })}
+                        />
+                    </Item>
+
+                    <Item>
+                        <Icon active ios='ios-arrow-dropright-circle' android="md-arrow-dropright-circle" style={styles.icon} />
+                        <Input
+                            placeholder='Partners: Will use Tags package soon'
+                            placeholderTextColor='#C0C0C0'
+                        />
+                    </Item>
+
+                    <Item>
+                        <Icon active ios='ios-person' android="md-person" style={styles.icon} />
+                        <Input
+                            style={styles.input}
+                            placeholder='Capacity'
+                            disabled={(this.state.status === 'open' || this.state.privacy === 'private') ? true : false}
+                            value={this.state.capacity}
+                            keyboardType='numeric'
+                            placeholderTextColor='#C0C0C0'
+                            onChangeText={capacity => this.setState({ capacity })}
+                        />
+                        <Icon active ios='ios-paper-plane' android="md-paper-plane" style={styles.icon} />
+                        <Input
+                            style={styles.input}
+                            placeholder='Location'
+                            value={this.state.location}
+                            placeholderTextColor='#C0C0C0'
+                            onChangeText={location => this.setState({ location })}
+                        />
+                    </Item>
+
+                    <Item>
+                        <Icon active ios='ios-calendar' android="md-calendar" style={styles.icon} />
+                        <DatePicker
+                            style={{ flex: 1, padding: 3, paddingLeft: 0 }}
+                            date={this.state.startDate}
+                            mode="datetime"
+                            placeholder="Starting Time"
+                            format='LLLL'
+                            minDate={this.state.minDate}
+                            maxDate={this.state.maxDate}
+                            confirmBtnText="Confirm"
+                            cancelBtnText="Cancel"
+                            customStyles={{
+                                dateIcon: {
+                                    width: 0,
+                                    height: 0
+                                },
+                                dateInput: {
+                                    fontFamily: 'Avenir',
+                                    backgroundColor: 'white',
+                                    borderWidth: 0,
+                                    alignItems: 'flex-start'
+                                },
+                                dateText: {
+                                    color: 'black',
+                                    textAlign: 'left',
+                                    fontSize: 16
+                                },
+                                placeholderText: {
+                                    fontSize: 16,
+                                    color: '#C0C0C0',
+                                }
+                            }}
+                            onDateChange={startDate => { this.setState({ startDate }) }}
+                        />
+                    </Item>
+
+                    <Item>
+                        <Icon active ios='ios-calendar' android="md-calendar" style={styles.icon} />
+                        <DatePicker
+                            style={{ flex: 1, padding: 5, paddingLeft: 0 }}
+                            date={this.state.endDate}
+                            mode="datetime"
+                            placeholder="Ending Time"
+                            format='LLLL'
+                            minDate={this.state.minDate}
+                            maxDate={this.state.maxDate}
+                            confirmBtnText="Confirm"
+                            cancelBtnText="Cancel"
+                            customStyles={{
+                                dateIcon: {
+                                    width: 0,
+                                    height: 0
+                                },
+                                dateInput: {
+                                    fontFamily: 'Avenir',
+                                    backgroundColor: 'white',
+                                    borderWidth: 0,
+                                    alignItems: 'flex-start'
+                                },
+                                dateText: {
+                                    color: 'black',
+                                    fontSize: 16
+                                },
+                                placeholderText: {
+                                    fontSize: 16,
+                                    color: '#C0C0C0',
+                                }
+                            }}
+                            onDateChange={endDate => { this.setState({ endDate }) }}
+                        />
+                    </Item>
+
+                    <Item>
+                        <Textarea
+                            rowSpan={5}
+                            placeholder="Description: Enter something informative and fun to impress your fellow students"
+                            style={styles.input} placeholderTextColor='#C0C0C0'
                             value={this.state.eventDescription}
-                            onFocus={() => console.log(this.props.isFocused)}
-                            onBlur={() => this.onBlur()} />
-                    </View>
-                </View>
+                            onChangeText={eventDescription => this.setState({ eventDescription })}
+                        />
+                    </Item>
+                </Form>
 
+                <Button full light style={{ backgroundColor: '#FF4136' }} onPress={this.submitButton}>
+                    <Text style={{ color: 'white', fontFamily: 'Avenir' }}> {(this.state.isEditing) ? 'Revise Event' : 'Post Event'} </Text>
+                </Button>
 
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.submitButton} onPress={this.submitEvent}>
-                        <Text style={styles.buttonText}> Post </Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
+            </Container>
+
         );
     }
 }
 
 const styles = StyleSheet.create({
-    MainContainer: {
-        flex: 1,
-        backgroundColor: 'blue',
-    },
-    topContainer: {
-        padding: 15,
-        flexDirection: 'row',
-    },
-    formsContainer: {
-        padding: 10,
-        flexDirection: 'column',
-        justifyContent: 'center',
-    },
-    avatarContainer: {
+    container: {
 
     },
-    bodyContainer: {
-        flexDirection: 'column',
-        justifyContent: "flex-start"
+    formContainer: {
+        marginBottom: 5
     },
-    textAreaContainer: {
-        borderColor: '#D3D3D3',
-        margin: 5,
-        marginBottom: 20
-    },
-    textArea: {
-        height: 150,
-        backgroundColor: 'white',
-        textAlign: 'center',
-        borderBottomWidth: 1,
-        borderColor: 'black',
-        borderRadius: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 1.5,
-        shadowRadius: 2,
-        fontFamily: "Avenir",
-        fontSize: 15,
-        padding: 10,
-        color: 'black',
-    },
-    segContainer: {
-        margin: 10,
-        shadowColor: '#000',
-        shadowRadius: 2,
-        shadowOpacity: 1.5,
-        shadowOffset: { width: 0, height: 2 },
-    },
-    segContainerBot: {
-        margin: 10,
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowRadius: 2,
-        shadowOpacity: 1.5,
-        shadowOffset: { width: 0, height: 2 },
-    },
-    segmentedControls: {
-        padding: 5,
-        fontFamily: "DINCondensed-Bold",
-        fontSize: 18
-
-    },
-    inputContainer: {
+    helpButtonContainer: {
         flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'white',
-        padding: 5,
-        margin: 5,
-        marginBottom: 20,
-        borderBottomWidth: 1,
-        borderRadius: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 1.5,
-        shadowRadius: 2,
-    },
-    inputIcon: {},
-    input: {
-        fontFamily: "Avenir",
-        fontSize: 15,
-        margin: 0,
-        padding: 10,
-        color: 'black',
-    },
-    dateContainer: {
-        flexDirection: 'row',
-        marginBottom: 20,
-    },
-    buttonContainer: {
-        alignItems: 'center',
-    },
-    submitButton: {
-        shadowColor: 'rgba(0,0,0, .4)', // IOS
-        shadowOffset: { height: 1, width: 1 }, // IOS
-        shadowOpacity: 1, // IOS
-        shadowRadius: 1, //IOS
-        backgroundColor: '#FF4136',
-        elevation: 2, // Android
-        height: 50,
-        width: 100,
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'row',
-        borderRadius: 5
-    },
-    buttonText: {
-        color: 'white',
-        fontFamily: "DINCondensed-Bold",
-        fontSize: 18,
-        justifyContent: 'center',
         alignItems: 'center'
-    }
+    },
+    item: {
+        borderColor: 'black'
+    },
+    input: {
+        fontFamily: 'Avenir',
+        padding: 5,
+    },
+    icon: {
+        color: '#FF4136'
+    },
 });
 
