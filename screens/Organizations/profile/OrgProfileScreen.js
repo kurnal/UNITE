@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, StyleSheet, TextInput, View, Button, Text } from 'react-native';
 import { ExpoLinksView } from '@expo/samples';
-
+import AutoTags from 'react-native-tag-autocomplete';
 import firebase from 'react-native-firebase';
 import { Input, Icon, Avatar, ListItem, Left, Right, Body } from 'react-native-elements';
 
@@ -15,6 +15,14 @@ export default class OrgProfileScreen extends React.Component {
     members: 1,
     approval: 1,
     description: '',
+    tagsSelected: [],
+    suggestions: [
+      { name: "tech" }, 
+      { name: "singing" },
+      { name: "government" }, 
+      { name: "indian" }]
+    //If you don't provide renderTags && filterData props,
+    //suggestions must have a 'name' attribute to be displayed && searched for.
   }
 
   constructor() {
@@ -34,6 +42,18 @@ export default class OrgProfileScreen extends React.Component {
 
     });
 
+  }
+
+  handleDelete = index => {
+    //tag deleted, remove from our tags array
+    let tagsSelected = this.state.tagsSelected;
+    tagsSelected.splice(index, 1);
+    this.setState({ tagsSelected });
+  }
+
+  handleAddition = contact => {
+    //suggestion clicked, push it to our tags array
+    this.setState({ tagsSelected: this.state.tagsSelected.concat([contact]) });
   }
 
   render() {
@@ -100,6 +120,19 @@ export default class OrgProfileScreen extends React.Component {
           onChangeText={(description) => this.setState({ description })}
           value={this.state.description} />
 
+        
+        <View style={styles.autocompleteContainer}>
+          <Text style={styles.label}>
+            Tags
+          </Text>
+          <AutoTags
+            suggestions={this.state.suggestions}
+            tagsSelected={this.state.tagsSelected}
+            placeholder="Describe your org..."
+            handleAddition={this.handleAddition}
+            handleDelete={this.handleDelete}
+          />
+        </View>
         <Button
           icon={
             <Icon
@@ -112,6 +145,7 @@ export default class OrgProfileScreen extends React.Component {
           onPress={this.handleSubmit}
         />
       </View>
+      
     );
   }
 }
@@ -122,6 +156,17 @@ const styles = StyleSheet.create({
     marginTop: 50,
     padding: 20,
     backgroundColor: '#ffffff',
+  },
+  autocompleteContainer: {
+    flex: 1,
+    left: 20,
+    position: 'absolute',
+    right: 20,
+    top: 500,
+    zIndex: 1
+  },
+  label: {
+    color: "#614b63", fontWeight: 'bold', marginBottom: 10
   },
 
 });
