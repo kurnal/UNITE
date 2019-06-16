@@ -14,7 +14,7 @@
 1) npm install
 2) sudo gem install cocoapods
 3) cd ios
-4) (I am not sure if you have to do pod init)
+4) pod init
 5) pod install
 6) pod update
 7) cd ../
