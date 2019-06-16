@@ -106,7 +106,12 @@ export default class EventCreationScreen extends React.Component {
     }
 
     postEvent = () => {
-        this.ref.doc(this.current.uid).collection('Events').doc(this.state.eventName).set({
+
+        let batch = firebase.firestore().batch();
+
+        let orgRef = this.ref.doc(this.current.uid).collection('Events').doc();
+        batch.set(orgRef, {
+            eventName: this.state.eventName,
             eventDescription: this.state.eventDescription,
             startDate: this.state.startDate,
             endDate: this.state.endDate,
@@ -114,21 +119,29 @@ export default class EventCreationScreen extends React.Component {
             capacity: this.state.capacity,
             privacy: this.state.privacy,
             status: this.state.status,
-            qr_encode: this.current.uid + " " + this.state.eventName,
             happened: false,
             attending: 0
-        }, { merge: true }).then(() => this.props.navigation.pop())
+        }, { merge: true });
+
+        let eventsRef = firebase.firestore().collection('All Events').doc()
+        batch.set(eventsRef, {
+            eventName: this.state.eventName,
+            eventDescription: this.state.eventDescription,
+            startDate: this.state.startDate,
+            endDate: this.state.endDate,
+            location: this.state.location,
+            capacity: this.state.capacity,
+            privacy: this.state.privacy,
+            status: this.state.status,
+            happened: false,
+            attending: 0
+        }, { merge: true });
+
+        batch.commit().then(() => this.props.navigation.pop())
     }
 
     submitButton = () => {
-
-        if (this.state.isEditing && this.state.oldEventName !== this.state.eventName) {
-                this.ref.doc(this.current.uid).collection('Events').doc(this.state.oldEventName).delete()
-                    .then(this.postEvent())
-        } else {
-            this.postEvent()
-        }
-
+        this.postEvent();
     }
 
     render() {
@@ -268,7 +281,7 @@ export default class EventCreationScreen extends React.Component {
                     <Item>
                         <Icon active ios='ios-calendar' android="md-calendar" style={styles.icon} />
                         <DatePicker
-                            style={{ flex: 1, padding: 5, paddingLeft: 0 }}
+                            style={{ flex: 1, padding: 3, paddingLeft: 0 }}
                             date={this.state.endDate}
                             mode="datetime"
                             placeholder="Ending Time"

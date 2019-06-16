@@ -39,7 +39,7 @@ export default class EventsScreen extends React.Component {
     this.height = Dimensions.get('window').height;
   }
 
-
+  
   obtainEventsInfo = () => {
     return Promise.resolve(
       this.eventsRef.where('happened', '==', false).get()
@@ -55,7 +55,8 @@ export default class EventsScreen extends React.Component {
 
           snapshot.forEach(doc => {
             holder = this.state.events.concat({
-              eventName: doc.id,
+              documentID: doc.id,
+              eventName: doc.data().eventName,
               eventDescription: doc.data().eventDescription,
               startDate: doc.data().startDate,
               endDate: doc.data().endDate,
@@ -80,6 +81,10 @@ export default class EventsScreen extends React.Component {
     );
   }
 
+  moveActiveToInactive = () => {
+
+  }
+
   checkIfEventHappened = () => {
 
     return Promise.resolve(
@@ -100,8 +105,9 @@ export default class EventsScreen extends React.Component {
 
             }
           });
-        })
+        })    
     );
+    
   }
 
   componentDidMount() {
