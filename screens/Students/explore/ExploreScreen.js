@@ -1,22 +1,29 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
+import { SearchBar} from 'react-native-elements';
 
 export default class ExploreScreen extends React.Component {
+  state = {
+    search: '',
+  };
+  
+  updateSearch = (search) => {
+    this.setState({ search });
+  };
   static navigationOptions = {
     title: 'Explore',
   };
 
   render() {
+    const { search } = this.state;
     return (
-      <ScrollView style={styles.container}>
-        <Text> 
-          Where users will be able explore all the events and clubs on campus. This page will be organized
-          such that users can easily sift between popular and recommended. The recommended engine must work
-          very well. Tabular indexing based on tags, key words, category, etc and must be neat. When clicking
-          on events, we must have a different UI for private versus public and how we handle entry. For clubs we
-          probably should make something cool to help facilitate communication.
-        </Text>
-      </ScrollView>
+      <SearchBar
+        placeholder='Type Here...'
+        platform='ios'
+        onChangeText={query => { this.setState({ search: query }); }}
+        value={search}
+      />
+      
     );
   }
 }
@@ -28,3 +35,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 });
+
+
+
+
+
