@@ -10,7 +10,7 @@ export default class SettingsScreen extends React.Component {
 
   handleSignOut = () => {
     firebase.auth().signOut()
-    .then(user => this.props.navigation.navigate('Auth'))
+    .then(() => this.props.navigation.navigate('Auth'))
     .catch(error => this.setState({ errorMessage: error.message }))
   }
   

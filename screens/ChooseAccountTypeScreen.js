@@ -18,14 +18,14 @@ constructor() {
     this.ref.doc(this.current.uid).set({
         email: this.current.email,
         StudentOrOrganization: "Student"
-      }).then(user => this.props.navigation.navigate('Student'));
+      }).then(() => this.props.navigation.navigate('Student'));
   }    
   
   accountForOrg = () => {
     this.ref.doc(this.current.uid).set({
         email: this.current.email,
         StudentOrOrganization: "Organization"
-      }).then(user => this.props.navigation.navigate('Organization'));
+      }).then(() => this.props.navigation.navigate('Organization'));
   }  
  
   render() {

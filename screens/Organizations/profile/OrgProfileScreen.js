@@ -35,12 +35,11 @@ export default class OrgProfileScreen extends React.Component {
   };
 
   handleSubmit = () => {
-    this.ref.doc(this.current.uid).update({
+    this.ref.doc(this.current.uid).set({
       title: this.state.name,
       tagline: this.state.tagline,
       description: this.state.description
-
-    });
+    },{merge: true});
 
   }
 

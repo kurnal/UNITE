@@ -17,6 +17,7 @@
     "immutability-helper": "^3.0.0",
     "moment": "^2.24.0",
     "native-base": "^2.12.1",
+    "node-schedule": "^1.3.2",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
     "react-native-calendars": "^1.187.0",

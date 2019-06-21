@@ -3,7 +3,6 @@ import { StyleSheet, Button, Dimensions, ScrollView, RefreshControl } from 'reac
 import { Icon } from 'react-native-elements'
 import { Container, View, DeckSwiper, Card, CardItem, Thumbnail, Text, Left, Right, Body } from 'native-base'
 import Carousel, { Pagination } from 'react-native-snap-carousel';
-import Modal from "react-native-modal";
 
 import firebase from 'react-native-firebase';
 import update from 'immutability-helper';
@@ -107,7 +106,7 @@ export default class EventsScreen extends React.Component {
           });
         })    
     );
-    
+
   }
 
   componentDidMount() {
@@ -203,7 +202,7 @@ export default class EventsScreen extends React.Component {
               color='#f50'
               size={40}
               onPress={() => {
-                this.props.navigation.push('EventCreation', { eventName: item.eventName })
+                this.props.navigation.push('EventCreation', { documentID: item.documentID })
               }}
             />
             <Text style={styles.captionText}> Revise </Text>

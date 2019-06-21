@@ -1,13 +1,10 @@
 import React from 'react';
-// import { ScrollView, View, StyleSheet, TextInput, TouchableOpacity, Text } from 'react-native';
 import { StyleSheet, View, TouchableHighlight, Text } from 'react-native';
-// import { ImagePicker } from 'react-native-image-picker'
 
 var NativeElementIcon = require('react-native-elements/src/icons/Icon.js')
 import DatePicker from 'react-native-datepicker'
-import { SegmentedControls } from 'react-native-radio-buttons'
 
-import { Container, Header, Content, Picker, Item, Input, Textarea, Form, Icon, Button } from 'native-base'
+import { Container, Picker, Item, Input, Textarea, Form, Icon, Button } from 'native-base'
 
 import moment from 'moment'
 import firebase from 'react-native-firebase';
