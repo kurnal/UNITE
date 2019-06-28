@@ -1,10 +1,10 @@
 import React from 'react';
-import { StyleSheet, View, TouchableHighlight, Text } from 'react-native';
+import { StyleSheet, View, TouchableHighlight, Text, StatusBar } from 'react-native';
 
 var NativeElementIcon = require('react-native-elements/src/icons/Icon.js')
 import DatePicker from 'react-native-datepicker'
 
-import { Container, Picker, Item, Input, Textarea, Form, Icon, Button } from 'native-base'
+import { Container, Picker, Item, Input, Textarea, Form, Icon, Button, Header, Title, Left, Body, Right } from 'native-base'
 
 import moment from 'moment'
 import firebase from 'react-native-firebase';
@@ -31,13 +31,13 @@ export default class EventCreationScreen extends React.Component {
             privacy: '',
             status: '',
 
-            minDate: new Date (new Date(moment().add(1, 'days')).setHours(24,0,0,0)),
-            maxDate: new Date(new Date(moment().add(3, 'month')).setHours(0,0,0,0)),
+            minDate: new Date(new Date(moment().add(1, 'days')).setHours(24, 0, 0, 0)),
+            maxDate: new Date(new Date(moment().add(3, 'month')).setHours(0, 0, 0, 0)),
             oldEventName: '',
             isEditing: false
         };
 
-        this.itemID = this.props.navigation.getParam('eventName', 'NO-ID');
+        this.itemID = this.props.navigation.getParam('documentID', 'NO-ID');
     }
 
     componentDidMount() {
@@ -46,8 +46,8 @@ export default class EventCreationScreen extends React.Component {
             this.ref.doc(this.current.uid).collection('Events').doc(this.itemID).get().then(
                 doc => {
                     this.setState({
-                        eventName: doc.id,
-                        oldEventName: doc.id,
+                        eventName: doc.data().eventName,
+                        oldEventName: doc.data().eventName,
                         eventDescription: doc.data().eventDescription,
                         startDate: doc.data().startDate,
                         endDate: doc.data().endDate,
@@ -145,7 +145,6 @@ export default class EventCreationScreen extends React.Component {
         return (
 
             <Container style={styles.container}>
-
                 <View style={styles.helpButtonContainer}>
                     <Text style={{ fontFamily: 'Avenir', flex: 1, marginLeft: 10 }}> Enter the information below.  </Text>
                     <NativeElementIcon.Icon

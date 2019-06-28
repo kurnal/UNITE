@@ -1,19 +1,21 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Icon } from 'react-native-elements'
+import { ScrollView, StyleSheet, Text, View, Butto, RefreshControl} from 'react-native';
+import { Icon, withTheme } from 'react-native-elements'
 import { Tab, Tabs, TabHeading } from 'native-base';
 import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 
 import MeetingsCreationScreen from './MeetingsCreationScreen';
+import AgendaMeetingDash from './AgendaMeetingsDash'
 
 import update from 'immutability-helper'
 import moment, { updateLocale } from 'moment'
 import firebase from 'react-native-firebase';
 
+
 export default class MeetingsScreen extends React.Component {
 
   static navigationOptions = {
-    title: 'Manage',
+    title: 'Meetings'
   };
 
   constructor() {
@@ -24,43 +26,93 @@ export default class MeetingsScreen extends React.Component {
     this.meetsRef = firebase.firestore().collection('Users').doc(this.current.uid).collection('Meets')
 
     this.state = {
-      currentDate: new Date(moment()),
+      currentDate: moment().subtract(1, 'months').format('YYYY-MM-DD'),
+      startOfLastMonth: moment().startOf('month'),
+      threeMonthsFromNow: moment().add(3, 'months').format('YYYY-MM-DD'),
       markedDates: {},
       days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      agendaItems: {}
+      agendaItemsJSON: {},
+      markedDates: {},
+      refreshing: false
     };
 
   }
 
   componentDidMount() {
-    this.meetsRef.get().then(querySnapshot => {
+    this.gatherDates().then(() => this.obtainAgendaItems())
+  }
 
-      if (querySnapshot.empty) {
-        return;
+  // _onRefresh = () => {
+  //   this.setState({ refreshing: true }).then(
+  //     this.obtainAgendaItems().then(() => {
+  //       this.setState(
+  //         {
+  //           refreshing: false
+  //         }
+  //       )
+  //     })
+  //   );
+  // }
+
+  obtainAgendaItems = () => {
+    return Promise.resolve(
+      this.meetsRef.get().then(querySnapshot => {
+
+        if (querySnapshot.empty) {
+          return;
+        }
+
+        querySnapshot.forEach(doc => {
+
+          this.setState(prevState => ({
+            markedDates: { ...prevState.markedDates, [doc.data().date]: { marked: true } },
+            agendaItemsJSON: update(this.state.agendaItemsJSON, {
+              [doc.data().date]: {
+                $push: [
+                  ...prevState.agendaItemsJSON[doc.data().date],
+                  {
+                    documentID: doc.id,
+                    name: doc.data().name,
+                    headline: doc.data().headline,
+                    agenda: doc.data().agenda,
+                    date: doc.data().date,
+                    startTime: doc.data().startTime,
+                    endTime: doc.data().endTime,
+                  }
+                ]
+              }
+            })
+          }))
+
+        })
+      })
+    )
+  }
+
+  gatherDates = () => {
+
+    let date = this.state.startOfLastMonth
+    let twoMonthsFromNow = moment().month() + 3;
+    let holder = {};
+
+    var promise = new Promise(function (resolve, reject) {
+      while ((date.month() + 1) < twoMonthsFromNow) {
+        formattedDate = date.format('YYYY-MM-DD')
+        holder[formattedDate] = []
+        date = date.add(1, 'day')
       }
-
-      // querySnapshot.forEach(doc => {
-
-      //   this.setState({
-      //     agendaItems: update(this.state.agendaItems, {
-      //       $push: {
-      //         [doc.data().date]: {
-      //           name: doc.data().name,
-      //           headline: doc.data().headline,
-      //           agenda: doc.data().agenda,
-      //         } 
-      //       }
-      //     })
-      //   })
-
-      // });
-
+      resolve(true)
     })
+
+    return new Promise.resolve(
+      promise.then(() => this.setState({ agendaItemsJSON: holder }))
+    )
+
   }
 
 
   renderDay = (date, item) => {
-    console.log(date)
+
     if (typeof date !== "undefined") {
       return (
         <View style={styles.agendaRenderDayContainer}>
@@ -70,115 +122,105 @@ export default class MeetingsScreen extends React.Component {
       );
     } else {
       return (
-        <View style={styles.emptyRenderDayContainer}>
-
-        </View>
+        <View style={styles.emptyRenderDayContainer}> </View>
       );
     }
 
   }
 
   renderItem = (item, firstItemInDay) => {
-
     return (
-      <View>
-        <Text> {item.text} </Text>
+      <AgendaMeetingDash navigation={this.props.navigation} meeting={item} />
+    )
+  }
+
+  renderEmptyDate = () => {
+    return (
+      <View style={{ alignItems: 'center', justifyContent: 'center', height: 50 }}>
+        <Text style={{ fontFamily: 'Avenir' }}> No Meetings Planned </Text>
       </View>
     )
   }
 
-
   render() {
     return (
 
-      <ScrollView style={styles.container}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={this.state.refreshing}
+            onRefresh={this._onRefresh}
+          /> 
+        }>
+
+          <View style={styles.meetingsFormButton}>
+            <Icon
+              raised
+              name='thumb-tack'
+              type='font-awesome'
+              color='#f50'
+              onPress={() => { this.props.navigation.push('MeetingsCreation') }}
+            />
+          </View>
+
+ 
 
         <View style={{ paddingBottom: 5 }}>
 
-          <Agenda
-            // the list of items that have to be displayed in agenda. If you want to render item as empty date
-            // the value of date key kas to be an empty array []. If there exists no value for date key it is
-            // considered that the date in question is not yet loaded
-            items={{
-              '2019-06-16': [{ text: 'item 1 - any js object' }],
-              '2019-06-19': [{ text: 'item 3 - any js object' }, { text: 'any js object' }]
-            }}
-            // callback that gets called when items for a certain month should be loaded (month became visible)
-            loadItemsForMonth={(month) => { console.log('trigger items loading') }}
-            // callback that fires when the calendar is opened or closed
-            onCalendarToggled={(calendarOpened) => { console.log(calendarOpened) }}
-            // callback that gets called on day press
-            onDayPress={(day) => { console.log('day pressed') }}
-            // callback that gets called when day changes while scrolling agenda list
-            onDayChange={(day) => { console.log('day changed') }}
-            // initially selected day
-            selected={this.currentDate}
-            // Max amount of months allowed to scroll to the past. Default = 50
-            pastScrollRange={50}
-            // Max amount of months allowed to scroll to the future. Default = 50
-            futureScrollRange={50}
-            // specify how each item should be rendered in agenda
-            renderItem={(item, firstItemInDay) => this.renderItem(item, firstItemInDay)}
-            // // specify how each date should be rendered. day can be undefined if the item is not first in that day.
-            renderDay={(date, item) => this.renderDay(date, item)}
-            // specify how empty date content with no items should be rendered
-            // renderEmptyDate={() => { return (<View />); }}
-            // specify how agenda knob should look like
-            // renderKnob={() => { return (<View />); }}
-            // specify what should be rendered instead of ActivityIndicator
-            renderEmptyData={() => { return (<View><Text>Click on Some Shit to Do Lit Shit</Text></View>); }}
-            // specify your item comparison function for increased performance
-            rowHasChanged={(r1, r2) => { return r1.text !== r2.text }}
-            // Hide knob button. Default = false
-            hideKnob={false}
-            // By default, agenda dates are marked if they have at least one item, but you can override this if needed
-            markedDates={{
-              '2019-06-16': { selected: true, marked: true },
-              '2019-06-19': { marked: true },
-            }}
-            // If provided, a standard RefreshControl will be added for "Pull to Refresh" functionality. Make sure to also set the refreshing prop correctly.
-            // onRefresh={() => console.log('refreshing...')}
-            // Set this true while waiting for new data from a refresh
-            refreshing={false}
-            // Add a custom RefreshControl component, used to provide pull-to-refresh functionality for the ScrollView.
-            refreshControl={null}
-            // agenda theme
-            theme={{
-              agendaDayTextColor: 'yellow',
-              agendaDayNumColor: 'green',
-              agendaTodayColor: 'red',
-              agendaKnobColor: 'blue'
-            }}
-            // agenda container style
-            style={{ height: 400, backgroundColor: 'white' }}
-          />
-        </View>
-        <Tabs>
-          <Tab
-            heading={
-              <TabHeading style={[styles.tabs, { borderLeftWidth: 1 }]}>
-                <Icon
-                  name='filter'
-                  type='font-awesome'
-                  color='#f50'
-                />
-              </TabHeading>
-            }>
-            <MeetingsCreationScreen />
-          </Tab>
-          <Tab
-            heading={
-              <TabHeading style={[styles.tabs, { borderRightWidth: 1 }]}>
-                <Icon
-                  name='clipboard'
-                  type='font-awesome'
-                  color='#f50'
-                />
-              </TabHeading>
-            }>
-            <Text> Bye Bye </Text>
-          </Tab>
-        </Tabs>
+        <Agenda
+          // the list of items that have to be displayed in agenda. If you want to render item as empty date
+          // the value of date key kas to be an empty array []. If there exists no value for date key it is
+          // considered that the date in question is not yet loaded
+          items={this.state.agendaItemsJSON}
+          // callback that gets called when items for a certain month should be loaded (month became visible)
+          loadItemsForMonth={(month) => { console.log('trigger items loading') }}
+          // callback that fires when the calendar is opened or closed
+          onCalendarToggled={(calendarOpened) => { console.log(calendarOpened) }}
+          // callback that gets called on day press
+          onDayPress={(day) => { console.log('day pressed') }}
+          // callback that gets called when day changes while scrolling agenda list
+          onDayChange={(day) => { console.log('day changed') }}
+          // initially selected day
+          selected={this.currentDate}
+          // Max amount of months allowed to scroll to the past. Default = 50
+          pastScrollRange={1}
+          // Max amount of months allowed to scroll to the future. Default = 50
+          futureScrollRange={3}
+          // specify how each item should be rendered in agenda
+          renderItem={(item, firstItemInDay) => this.renderItem(item, firstItemInDay)}
+          // // specify how each date should be rendered. day can be undefined if the item is not first in that day.
+          renderDay={(date, item) => this.renderDay(date, item)}
+          // specify how empty date content with no items should be rendered
+          renderEmptyDate={() => this.renderEmptyDate()}
+          // specify how agenda knob should look like
+          // renderKnob={() => { return (<View />); }}
+          // specify what should be rendered instead of ActivityIndicator
+          renderEmptyData={() => { return (<View><Text>Click on Some Shit to Do Lit Shit</Text></View>); }}
+          // specify your item comparison function for increased performance
+          rowHasChanged={(r1, r2) => { return r1.text !== r2.text }}
+          // Hide knob button. Default = false
+          hideKnob={false}
+          // By default, agenda dates are marked if they have at least one item, but you can override this if needed
+          markedDates={this.state.markedDates}
+
+          // If provided, a standard RefreshControl will be added for "Pull to Refresh" functionality. Make sure to also set the refreshing prop correctly.
+          // onRefresh={() => console.log('refreshing...')}
+          // Set this true while waiting for new data from a refresh
+          refreshing={false}
+          // Add a custom RefreshControl component, used to provide pull-to-refresh functionality for the ScrollView.
+          refreshControl={null}
+          // agenda theme
+          theme={{
+            agendaDayTextColor: 'yellow',
+            agendaDayNumColor: 'green',
+            agendaTodayColor: 'red',
+            agendaKnobColor: '#C0C0C0'
+          }}
+          // agenda container style
+          style={{ height: 400, backgroundColor: 'white' }}
+        />
+      </View>
+
       </ScrollView>
 
     );
@@ -190,6 +232,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 15,
     backgroundColor: '#fff',
+  },
+  meetingsFormButton: {
+    alignItems: 'flex-end'
   },
   agendaRenderDayContainer: {
     borderTopColor: '#C0C0C0',
@@ -204,14 +249,16 @@ const styles = StyleSheet.create({
     height: 50,
   },
   agendaDay: {
-    fontFamily: 'Avenir',
+    fontFamily: 'Futura',
     fontSize: 36,
-    textAlign: 'center'
+    textAlign: 'center',
+    color: '#C0C0C0'
   },
   agendaDayName: {
-    fontFamily: 'Avenir',
-    fontSize: 18,
+    fontFamily: 'Futura',
+    fontSize: 24,
     textAlign: 'center',
+    color: '#C0C0C0'
   },
   tabs: {
     backgroundColor: 'white',

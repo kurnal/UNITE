@@ -9,7 +9,8 @@ import EventsScreen from '../../../screens/Organizations/manage/events/EventsScr
 import EventCreationScreen from '../../../screens/Organizations/manage/events/EventCreationScreen';
 
 import MeetingsScreen from '../../../screens/Organizations/manage/meetings/MeetingsScreen';
-import MeetingsSettingsScreen from '../../../screens/Organizations/manage/meetings/MeetingsSettingsScreen';
+import MeetingsCreationScreen from '../../../screens/Organizations/manage/meetings/MeetingsCreationScreen';
+import EditMeetings from '../../../screens/Organizations/manage/meetings/creationForms/EditMeetings';
 
 import MessagesScreen from '../../../screens/Organizations/manage/MessagesScreen';
 
@@ -31,15 +32,10 @@ const EventStack = createStackNavigator({
   EventCreation: {
     screen: EventCreationScreen,
   }
-},{
-  mode: 'modal',
-  headerMode: 'screen',
-
-});
-
-EventStack.navigationOptions = {
-  tabBarLabel: 'Events',
-};
+}, {
+    mode: 'modal',
+    headerMode: 'screen',
+  });
 
 EventStack.navigationOptions = ({ navigation }) => {
   let tabBarVisible = true;
@@ -49,16 +45,38 @@ EventStack.navigationOptions = ({ navigation }) => {
 
   return {
     tabBarVisible,
+    tabBarLabel: 'Events',
   };
 };
 
-const MeetingsStack = createSwitchNavigator({
-  Meetings: MeetingsScreen,
-  MeetingsSettings: MeetingsSettingsScreen
-});
+const MeetingsStack = createStackNavigator({
+  Meetings: {
+    screen: MeetingsScreen,
+    navigationOptions: {
+      header: null
+    }
+  },
+  MeetingsCreation: {
+    screen: MeetingsCreationScreen
+  },
+  EditMeetings: {
+    screen: EditMeetings
+  }
+}, {
+    mode: 'modal',
+    headerMode: 'screen',
+  });
 
-MeetingsStack.navigationOptions = {
-  tabBarLabel: 'Meetings'
+MeetingsStack.navigationOptions = ({ navigation }) => {
+  let tabBarVisible = true;
+  if (navigation.state.index > 0) {
+    tabBarVisible = false;
+  }
+  
+  return {
+    tabBarVisible,
+    tabBarLabel: 'Meetings'
+  };
 };
 
 const MessagesStack = createSwitchNavigator({

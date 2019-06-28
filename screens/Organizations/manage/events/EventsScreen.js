@@ -190,7 +190,6 @@ export default class EventsScreen extends React.Component {
               color='#f50'
               size={40}
               onPress={() => { this.props.navigation.push('EventCreation') }}
-              size={40}
             />
             <Text style={styles.captionText}> Guest List </Text>
           </Body>
@@ -262,6 +261,7 @@ export default class EventsScreen extends React.Component {
 
   render() {
     return (
+
       <ScrollView
         refreshControl={
           <RefreshControl
