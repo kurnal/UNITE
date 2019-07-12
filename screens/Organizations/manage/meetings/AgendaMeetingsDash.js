@@ -32,7 +32,7 @@ export default class AgendaMeetingsDash extends React.Component {
     }
 
     componentDidMount() {
-        console.log(this.props.navigation)
+    
     }
 
     render() {

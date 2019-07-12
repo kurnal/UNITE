@@ -1,66 +1,68 @@
 import React, {Component} from 'react';
-import { ScrollView, StyleSheet, Text, View, Image, StyleSheet, Button, AppRegistry, Alert} from 'react-native';
-import { ExpoLinksView } from '@expo/samples';
-import SearchBar from 'react-native-search-bar'
+import { ScrollView, Text, View, Image, StyleSheet, Button, Alert} from 'react-native';
+// import { ExpoLinksView } from '@expo/samples';
+// import SearchBar from 'react-native-search-bar'
 
 export default class ProfileScreen extends React.Component {
 
-  _onPress() {
-    Alert.alert('on Press!');
-   }
+  // _onPress() {
+  //   Alert.alert('on Press!');
+  //  }
   
-  static navigationOptions = {
-    title: 'Student Profile',
-  };
+  // static navigationOptions = {
+  //   title: 'Student Profile',
+  // };
 
 
   render() {
     return (
 
-      <Image style={styles.headerBackground} source={require('../screens/stock-photo].jpg')}>
+//       <Image style={styles.headerBackground} source={require('../screens/stock-photo].jpg')}>
 
-      <View style={styles.header}>
+//       <View style={styles.header}>
 
-        <View style={styles.profpicWrap}>
-          <Image style={styles.profpic} source={require('../screens/stock-photo-2.jpg')} />
-        </View>
+//         <View style={styles.profpicWrap}>
+//           <Image style={styles.profpic} source={require('../screens/stock-photo-2.jpg')} />
+//         </View>
 
-        <View style={styles.container}>
-        <View style={styles.buttonContainer}>
-          <Button onPress={this._onPress} title="Save" color="#FFFFFF" accessibilityLabel="Tap on Me"/>
-        </View>
-      </View>
+//         <View style={styles.container}>
+//         <View style={styles.buttonContainer}>
+//           <Button onPress={this._onPress} title="Save" color="#FFFFFF" accessibilityLabel="Tap on Me"/>
+//         </View>
+//       </View>
 
 
-        <Text style = {styles.members}> 104 members</Text>
-        <Text style = {styles.approval}> 1064 members</Text>
+//         <Text style = {styles.members}> 104 members</Text>
+//         <Text style = {styles.approval}> 1064 members</Text>
 
-        <Text style={styles.name}>Arko Mazumder</Text>
-          <Text style={styles.tag}>Sample Tagline</Text>
+//         <Text style={styles.name}>Arko Mazumder</Text>
+//           <Text style={styles.tag}>Sample Tagline</Text>
 
-      <ScrollView style={styles.container}>
-        <Text> 
-          Where users will be able to design their profile and their preferences such that our explore module
-          can properly recommend clubs and events to them. We might also want to develop a friend system of sorts
-          so we can recommend events based on their friends and their interests. Also we need a creative way to 
-          gather information on their interests and desires.
-        </Text>
-      </ScrollView>
+//       <ScrollView style={styles.container}>
+//         <Text> 
+//           Where users will be able to design their profile and their preferences such that our explore module
+//           can properly recommend clubs and events to them. We might also want to develop a friend system of sorts
+//           so we can recommend events based on their friends and their interests. Also we need a creative way to 
+//           gather information on their interests and desires.
+//         </Text>
+//       </ScrollView>
 
       
 
-      <ScrollView style={styles.tagbase}>
-        <Text> 
-          SGA 
-          Terrapin Hackers
-          Bitcamp 
-          XR Club 
-        </Text>
-      </ScrollView>
+//       <ScrollView style={styles.tagbase}>
+//         <Text> 
+//           SGA 
+//           Terrapin Hackers
+//           Bitcamp 
+//           XR Club 
+//         </Text>
+//       </ScrollView>
 
-      </View>
+//       </View>
 
-</Image>
+// </Image>
+
+<View> </View>
     );
   }
 }
@@ -82,7 +84,7 @@ const styles = StyleSheet.create({
       },
       shadowRadius: 10,
       shadowOpacity: 0.25
-    }
+    },
   header: {
     flex: 1,
     alignItems: 'center',
