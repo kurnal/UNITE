@@ -30,7 +30,7 @@ export default class EventCreationScreen extends React.Component {
             capacity: '',
             privacy: '',
             status: '',
-
+            organizationName: '',
             minDate: new Date(new Date(moment().add(1, 'days')).setHours(24, 0, 0, 0)),
             maxDate: new Date(new Date(moment().add(3, 'month')).setHours(0, 0, 0, 0)),
             oldEventName: '',
@@ -41,7 +41,6 @@ export default class EventCreationScreen extends React.Component {
     }
 
     componentDidMount() {
-
         if (this.itemID !== 'NO-ID') {
             this.ref.doc(this.current.uid).collection('Events').doc(this.itemID).get().then(
                 doc => {
@@ -49,8 +48,8 @@ export default class EventCreationScreen extends React.Component {
                         eventName: doc.data().eventName,
                         oldEventName: doc.data().eventName,
                         eventDescription: doc.data().eventDescription,
-                        startDate: doc.data().startDate,
-                        endDate: doc.data().endDate,
+                        startDate: moment(doc.data().startDate, 'YYYY-MM-DD hh:mm A').format('LLLL'),
+                        endDate: moment(doc.data().endDate, 'YYYY-MM-DD hh:mm A').format('LLLL'),
                         location: doc.data().location,
                         capacity: doc.data().capacity,
                         privacy: doc.data().privacy,
@@ -60,6 +59,13 @@ export default class EventCreationScreen extends React.Component {
                 }
             )
         }
+
+        this.ref.doc(this.current.uid).get().then(doc => {
+            this.setState({
+                organizationName: doc.data().title
+            })
+        }) 
+
     }
 
     setEventPrivacy(value) {
@@ -102,12 +108,13 @@ export default class EventCreationScreen extends React.Component {
 
     }
 
-    postEvent = () => {
+    updateEvent = () => {
 
         let batch = firebase.firestore().batch();
 
-        let orgRef = this.ref.doc(this.current.uid).collection('Events').doc();
-        batch.set(orgRef, {
+        let orgRef = this.ref.doc(this.current.uid).collection('Events').doc(this.itemID);
+        
+        batch.update(orgRef, {
             eventName: this.state.eventName,
             eventDescription: this.state.eventDescription,
             startDate: this.state.startDate,
@@ -117,15 +124,55 @@ export default class EventCreationScreen extends React.Component {
             privacy: this.state.privacy,
             status: this.state.status,
             happened: false,
+            organizationName: this.state.organizationName,
             attending: 0
         }, { merge: true });
 
         let eventsRef = firebase.firestore().collection('All Events').doc()
-        batch.set(eventsRef, {
+        batch.update(eventsRef, {
             eventName: this.state.eventName,
             eventDescription: this.state.eventDescription,
             startDate: this.state.startDate,
             endDate: this.state.endDate,
+            location: this.state.location,
+            capacity: this.state.capacity,
+            privacy: this.state.privacy,
+            status: this.state.status,
+            organizationName: this.state.organizationName,
+            happened: false,
+            attending: 0
+        }, { merge: true });
+
+        batch.commit().then(() => this.props.navigation.pop())
+    }
+
+    postEvent = () => {
+
+        let batch = firebase.firestore().batch();
+        let orgRef = this.ref.doc(this.current.uid).collection('Events').doc();
+
+        batch.set(orgRef, {
+            eventName: this.state.eventName,
+            eventDescription: this.state.eventDescription,
+            startDate: moment(this.state.startDate, 'LLLL').format('YYYY-MM-DD hh:mm A'),
+            endDate: moment(this.state.endDate, 'LLLL').format('YYYY-MM-DD hh:mm A'),
+            date: moment(this.state.startDate, 'LLLL').format('YYYY-MM-DD'),
+            location: this.state.location,
+            capacity: this.state.capacity,
+            privacy: this.state.privacy,
+            status: this.state.status,
+            happened: false,
+            attending: 0
+        }, { merge: true });
+
+        let sameRef = orgRef._documentPath._parts[3]
+        let eventsRef = firebase.firestore().collection('All Events').doc(sameRef)
+        batch.set(eventsRef, {
+            eventName: this.state.eventName,
+            eventDescription: this.state.eventDescription,
+            startDate: moment(this.state.startDate, 'LLLL').format('YYYY-MM-DD hh:mm A'),
+            endDate: moment(this.state.endDate, 'LLLL').format('YYYY-MM-DD hh:mm A'),
+            date: moment(this.state.startDate, 'LLLL').format('YYYY-MM-DD'),
             location: this.state.location,
             capacity: this.state.capacity,
             privacy: this.state.privacy,
@@ -138,7 +185,11 @@ export default class EventCreationScreen extends React.Component {
     }
 
     submitButton = () => {
-        this.postEvent();
+        if(this.state.isEditing) {
+            this.updateEvent();
+        } else {
+            this.postEvent();
+        }
     }
 
     render() {

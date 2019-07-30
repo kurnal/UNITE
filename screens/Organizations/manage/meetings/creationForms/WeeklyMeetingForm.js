@@ -6,6 +6,7 @@ import DatePicker from 'react-native-datepicker'
 import moment from 'moment'
 import firebase from 'react-native-firebase';
 
+
 export default class WeeklyMeetingForm extends React.Component {
 
     static navigationOptions = {};
@@ -21,18 +22,19 @@ export default class WeeklyMeetingForm extends React.Component {
             meetingStartTime: '',
             meetingEndTime: '',
             meetingName: '',
-            currentDate: moment(),
-
-            
+            organizationName: '',
+            currentDate: moment(),           
             isEditing: false,
         }
     }
 
     componentDidMount() {
-        this.setState({
-            modalVisible: true
+        this.ref.doc(this.current.uid).get( doc => {
+            this.setState({
+                organizationName: doc.data().title
+            })
         })
-    }
+    } 
 
     postMeetings = (meeting) => {
 
@@ -50,22 +52,28 @@ export default class WeeklyMeetingForm extends React.Component {
                 let batch = firebase.firestore().batch();
                 let meetsRef = this.ref.doc(this.current.uid).collection('Meets')
 
+                let _organizationName = this.state.organizationName
+
                 while (date.day() != meetingDay) {
                     date = date.add(1, 'day')
                 }
 
                 while ((date.month() + 1) < twoMonthsFromNow) {
+
+                    _startDate = moment(date.toString() + ' ' + meetingStartTime.toString(), 'LLLL')
+
                     batch.set(meetsRef.doc(), {
                         name: meetingName,
                         date: date.format('YYYY-MM-DD'),
                         startTime: meetingStartTime,
+                        startDate: _startDate.format('YYYY-MM-DD hh:mm'),
                         endTime: meetingEndTime,
                         headline: '',
-                        agenda: ''
+                        agenda: '',
+                        organizationName: _organizationName
                     });
                     date = date.add(7, 'day');
                 }
-
 
                 batch.commit().then(() => this.setState({
                     meetingDay: '',

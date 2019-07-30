@@ -6,7 +6,11 @@ import TabBarIcon from '../../components/TabBarIcon';
 import HomeScreen from '../../screens/Students/HomeScreen';
 import ExploreScreen from '../../screens/Students/explore/ExploreScreen';
 import ProfileScreen from '../../screens/Students/profile/StudentProfileScreen';
+
 import VaultScreen from '../../screens/Students/vault/VaultScreen';
+import EventTicketScreen from '../../screens/Students/vault/EventTicket'
+import MeetingTicketScreen from '../../screens/Students/vault/MeetingTicket'
+
 import SettingsScreen from '../../screens/SettingsScreen';
 
 const HomeStack = createStackNavigator({
@@ -43,7 +47,26 @@ ExploreStack.navigationOptions = {
 
 const VaultStack = createStackNavigator({
   Vault: VaultScreen,
-});
+  EventTicket: {
+    screen: EventTicketScreen,
+  },
+  MeetingTicket: {
+    screen: MeetingTicketScreen
+  }
+}, {
+    mode: 'modal',
+    headerMode: 'none',
+  });
+
+VaultStack.navigationOptions = ({ navigation }) => {
+  let tabBarVisible = true;
+  if (navigation.state.index > 0) {
+    tabBarVisible = false;
+  }
+  return {
+    tabBarVisible,
+  };
+};
 
 VaultStack.navigationOptions = {
   tabBarLabel: 'Vault',

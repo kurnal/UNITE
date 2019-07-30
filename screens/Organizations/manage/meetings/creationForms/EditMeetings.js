@@ -33,23 +33,28 @@ export default class EditMeetings extends React.Component {
     }
 
     componentDidMount() {
-        console.log(this.meeting)
         this.setState({
             agenda: this.meeting.agenda,
             date: this.meeting.date,
             endTime: this.meeting.endTime,
             headline: this.meeting.headline,
-            startTime: this.meeting.startTime,
+            startDate: this.meeting.startDate,
         })
     }
 
     submitButton = () => {
+
+        let date = this.state.date
+        let startTime = this.state.startTime
+        _startDate = moment(date.toString() + ' ' + startTime.toString(), 'YYYY-MM-DD HH:mm')
+
         this.meetsRef.doc(this.meeting.documentID).update({
             agenda: this.state.agenda,
             date: this.state.date,
+            startTime: this.state.startTime,
             endTime: this.state.endTime,
             headline: this.state.headline,
-            startTime: this.state.startTime,
+            startDate: _startDate.format('YYYY-MM-DD hh:mm'),
         }).then(() => this.props.navigation.pop())
     }
 

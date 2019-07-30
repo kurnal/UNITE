@@ -22,13 +22,18 @@ export default class MonthlyMeetingForm extends React.Component {
             meetingStartTime: '',
             meetingEndTime: '',
             meetingName: '',
+            organizationName: '',
             currentDate: moment(),
         }
 
     }
 
     componentDidMount() {
-        console.log(this.itemID);
+        this.ref.doc(this.current.uid).get( doc => {
+            this.setState({
+                organizationName: doc.data().title
+            })
+        }) 
     }
 
 
@@ -52,14 +57,19 @@ export default class MonthlyMeetingForm extends React.Component {
                 let batch = firebase.firestore().batch();
                 let meetsRef = this.ref.doc(this.current.uid).collection('Meets')
 
+                let _organizationName = this.state.organizationName
+
                 while ((meetingDay.month() + 1) < twoMonthsFromNow) {
+                    _startDate = moment(date.toString() + ' ' + meetingStartTime.toString(), 'LLLL')
                     batch.set(meetsRef.doc(), {
                         name: meetingName,
                         date: meetingDay.format('YYYY-MM-DD'),
+                        startDate: _startDate.format('YYYY-MM-DD hh:mm'),
                         startTime: meetingStartTime,
                         endTime: meetingEndTime,
                         headline: '',
-                        agenda: ''
+                        agenda: '',
+                        organizationName: _organizationName
                     });
                     meetingDay = this.addRealMonth(meetingDay);
                 }

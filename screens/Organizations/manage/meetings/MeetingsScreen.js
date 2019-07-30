@@ -38,7 +38,7 @@ export default class MeetingsScreen extends React.Component {
   }
 
   componentDidMount() {
-    this.gatherDates().then(() => this.obtainAgendaItems()).then(() => console.log(this.state.agendaItemsJSON))
+    this.gatherDates().then(() => this.obtainAgendaItems())
   }
 
   _onRefresh = () => {
@@ -69,6 +69,7 @@ export default class MeetingsScreen extends React.Component {
                     headline: doc.data().headline,
                     agenda: doc.data().agenda,
                     date: doc.data().date,
+                    startDate: doc.data().startDate,
                     startTime: doc.data().startTime,
                     endTime: doc.data().endTime,
                   }

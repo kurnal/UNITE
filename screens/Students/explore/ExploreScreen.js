@@ -27,7 +27,6 @@ export default class ExploreScreen extends React.Component {
     this.current = firebase.auth().currentUser;
     this.eventsRef = firebase.firestore().collection('Tags').doc('Academic')
 
-
   }
 
   componentDidMount = () => {
@@ -50,6 +49,7 @@ export default class ExploreScreen extends React.Component {
         })
     );
   }
+  
   updateSearch = (search) => {
     this.setState({ search });
   };
