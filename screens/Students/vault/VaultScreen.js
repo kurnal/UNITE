@@ -96,6 +96,7 @@ export default class VaultScreen extends React.Component {
           firebase.firestore().collection('All Events').doc(docRef).get().then(
             doc => {
               that.setState(prevState => ({
+                markedDates: { ...prevState.markedDates, [doc.data().date]: { marked: true, dotColor: (doc.data().privacy == 'public') ? '#5f9ea0': '#ffa500' }},
                 treasure: update(that.state.treasure, {
                   [doc.data().date]: {
                     ...prevState.treasure[doc.data().date],
@@ -150,6 +151,7 @@ export default class VaultScreen extends React.Component {
           ref.get().then(
             doc => {
               that.setState(prevState => ({
+                markedDates: { ...prevState.markedDates, [doc.data().date]: { marked: true, dotColor: '#FF4136' }},
                 treasure: update(that.state.treasure, {
                   [doc.data().date]: {
                     ...prevState.treasure[doc.data().date],
@@ -233,7 +235,7 @@ export default class VaultScreen extends React.Component {
         <View>
           {this.renderDayLabel(item.date)}
           <Card style={{ width: '100%', margin: '5%' }}>
-            <CardItem header style={styles.cardHeader}>
+            <CardItem header style={[styles.cardHeader, {backgroundColor: (item.privacy == 'public') ? '#5f9ea0': '#ffa500'}]}>
               <Text style={{ color: 'white' }}>{item.eventName}</Text>
               <Right style={{ marginRight: -40 }}>
                 <Icon
@@ -346,7 +348,7 @@ export default class VaultScreen extends React.Component {
         <View>
           {this.renderDayLabel(item.date)}
           <Card style={{ width: '100%', margin: '5%' }}>
-            <CardItem header style={styles.cardHeader}>
+            <CardItem header style={[styles.cardHeader, {backgroundColor: '#FF4136'}]}>
               <Text style={{ color: 'white' }}>{item.organizationName}</Text>
               <Right style={{ marginRight: -40 }}>
                 <Icon
@@ -547,7 +549,6 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
   cardHeader: {
-    backgroundColor: '#FF4136',
     marginBottom: 5,
     width: '100%',
     flexDirection: 'row'
