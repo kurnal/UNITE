@@ -3,8 +3,10 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { SearchBar } from 'react-native-elements';
 import firebase from 'react-native-firebase';
 import Autocomplete from 'react-native-autocomplete-input'
+import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
 
 import { SUGGESTIONS } from '../../../tags'
+
 
 
 export default class ExploreScreen extends React.Component {
@@ -17,8 +19,12 @@ export default class ExploreScreen extends React.Component {
     search: '',
     events: [],
     noEvents: false,
-    info: SUGGESTIONS.TAGS,
-    query: ''
+    info: (SUGGESTIONS.ACADEMIC, SUGGESTIONS.TAGS),
+    query: '',
+    radio_props: [
+      {label: 'tags', value: 0 },
+      {label: 'academics', value: 1 }
+    ]
   };
 
   constructor() {
@@ -29,8 +35,10 @@ export default class ExploreScreen extends React.Component {
 
   }
 
+
   componentDidMount = () => {
     console.log(SUGGESTIONS.TAGS);
+    console.log(SUGGESTIONS.ACADEMIC);
   }
 
   obtainEventsInfo = () => {
@@ -52,6 +60,7 @@ export default class ExploreScreen extends React.Component {
   
   updateSearch = (search) => {
     this.setState({ search });
+    this.setState({value:value})
   };
 
   _filterData = (query) => {
@@ -59,14 +68,14 @@ export default class ExploreScreen extends React.Component {
     if (query === '') {
       return [];
     }
-
-    const { info } = this.state;
+    
+    const info = SUGGESTIONS.ACADEMIC; // NEED TO PASS INTO HERE
+    
     const regex = new RegExp(`${query.trim()}`, 'i');
     return info.filter(info => info.search(regex) >= 0);
 
   }
-
-
+  
   render() {
 
     const data = this._filterData(this.state.query);
@@ -84,7 +93,17 @@ export default class ExploreScreen extends React.Component {
             </TouchableOpacity>
           )}
         />
+        <RadioForm
+          radio_props={this.state.radio_props}
+          initial={0}
+          formHorizontal={false}
+          labelHorizontal={true}
+          buttonColor={'#2196f3'}
+          animation={true}
+          onPress={(value) => {this.setState({value:value})}}
+      /> 
       </View>
+
 
     );
   }
