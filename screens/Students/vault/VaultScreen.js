@@ -9,6 +9,7 @@ import update from 'immutability-helper'
 import moment from 'moment'
 import firebase from 'react-native-firebase';
 import jsonpack from 'jsonpack'
+import BatchedBridge from 'react-native/Libraries/BatchedBridge/BatchedBridge';
 
 
 export default class VaultScreen extends React.Component {
@@ -25,8 +26,6 @@ export default class VaultScreen extends React.Component {
     this.userRef = firebase.firestore().collection('Users').doc(this.current.uid)
 
     this.state = {
-      eventRefs: [],
-      meetingsRef: [],
       treasure: {},
       personal: {},
       currentDate: moment(),
@@ -69,35 +68,18 @@ export default class VaultScreen extends React.Component {
     )
   }
 
-  obtainEventsAndMeetsRefs = () => {
-    return Promise.resolve(
-      this.userRef.get().then(
-        doc => {
-          this.setState(
-            {
-              eventRefs: doc.data().Events,
-              meetingsRef: doc.data().Meets
-            }
-          )
-        }
-      )
-    )
-  }
-
   obtainEvents = () => {
 
-    var that = this
-
-    return new Promise(async function (resolve, reject) {
-      for (i = 0; i < that.state.eventRefs.length; i++) {
-        docRef = that.state.eventRefs[i]._documentPath._parts[1];
-
-        await new Promise(resolve => {
-          firebase.firestore().collection('All Events').doc(docRef).get().then(
-            doc => {
-              that.setState(prevState => ({
-                markedDates: { ...prevState.markedDates, [doc.data().date]: { marked: true, dotColor: (doc.data().privacy == 'public') ? '#5f9ea0': '#ffa500' }},
-                treasure: update(that.state.treasure, {
+    return new Promise.resolve(
+      this.userRef.collection('Events').get().then(
+        snapshot => {
+          snapshot.forEach(doc => {
+            let date = moment(doc.data().date).format('YYYY-MM-DD')
+            let today = moment().format('YYYY-MM-DD')
+            if (moment(date).isAfter(moment(today))) {
+              this.setState(prevState => ({
+                markedDates: { ...prevState.markedDates, [doc.data().date]: { marked: true, dotColor: (doc.data().privacy == 'public') ? '#5f9ea0' : '#ffa500' } },
+                treasure: update(this.state.treasure, {
                   [doc.data().date]: {
                     ...prevState.treasure[doc.data().date],
                     $push: [
@@ -115,44 +97,48 @@ export default class VaultScreen extends React.Component {
                         attending: doc.data().attending,
                         qr_info: {
                           _id: doc.id,
-                          personal: that.state.personal
+                          personal: this.state.personal
                         }
                       }
                     ]
                   }
                 })
               }))
-              resolve()
+            } else {
+              this.moveEventToPast(doc.data(), doc.id);
             }
-          )
-        })
-
-        if (i == that.state.eventRefs.length - 1) {
-          resolve(true)
+          });
         }
-      }
-    })
+      )
+    )
+  }
+
+  moveEventToPast = (event, eventID) => {
+
+    let batch = firebase.firestore().batch();
+    let eventRef = this.userRef.collection('Events').doc(eventID)
+    let pastEventsRef = this.userRef.collection('Past Events').doc();
+
+    return new Promise(function (resolve, reject) {
+      batch.delete(eventRef)
+      batch.set(pastEventsRef, event)
+      batch.commit().then(resolve())
+    });
+
   }
 
   obtainMeetings = () => {
 
-    var that = this
-
-    return new Promise(async function (resolve, reject) {
-
-      for (i = 0; i < that.state.meetingsRef.length; i++) {
-
-        userRef = that.state.meetingsRef[i]._documentPath._parts[1];
-        meetRef = that.state.meetingsRef[i]._documentPath._parts[3];
-        ref = firebase.firestore().collection('Users').doc(userRef)
-          .collection('Meets').doc(meetRef)
-
-        await new Promise(resolve => {
-          ref.get().then(
-            doc => {
-              that.setState(prevState => ({
-                markedDates: { ...prevState.markedDates, [doc.data().date]: { marked: true, dotColor: '#FF4136' }},
-                treasure: update(that.state.treasure, {
+    return new Promise.resolve(
+      this.userRef.collection('Meetings').get().then(
+        snapshot => {
+          snapshot.forEach(doc => {
+            let date = moment(doc.data().date).format('YYYY-MM-DD')
+            let today = moment().format('YYYY-MM-DD')
+            if (moment(date).isAfter(moment(today))) {
+              this.setState(prevState => ({
+                markedDates: { ...prevState.markedDates, [doc.data().date]: { marked: true, dotColor: '#FF4136' } },
+                treasure: update(this.state.treasure, {
                   [doc.data().date]: {
                     ...prevState.treasure[doc.data().date],
                     $push: [
@@ -176,27 +162,38 @@ export default class VaultScreen extends React.Component {
                   }
                 })
               }))
-              resolve()
+            } else {
+              this.moveMeetingToPast(doc.data(), doc.id)
             }
-          )
-        })
-        if (i == that.state.meetingsRef.length - 1) {
-          resolve(true)
+          })
         }
-      }
-    })
+      )
+    )
   }
+
+  moveMeetingToPast = (meeting, meetingID) => {
+
+    let batch = firebase.firestore().batch();
+    let meetingRef = this.userRef.collection('Meetings').doc(meetingID)
+    let pastMeetingsRef = this.userRef.collection('Past Meetings').doc();
+
+    return new Promise(function (resolve, reject) {
+      batch.delete(meetingRef)
+      batch.set(pastMeetingsRef, meeting)
+      batch.commit().then(resolve())
+    });
+
+  } 
+
 
   componentDidMount() {
     this.gatherDates().then(
       this.obtainPersonalInfo().then(
-        this.obtainEventsAndMeetsRefs().then(
-          () => this.obtainEvents().then(
-            () => this.obtainMeetings()
+          () => this.obtainMeetings().then(
+            () => this.obtainEvents()
           )
         )
       )
-    )
   }
 
   renderDayLabel = (date) => {
@@ -235,7 +232,7 @@ export default class VaultScreen extends React.Component {
         <View>
           {this.renderDayLabel(item.date)}
           <Card style={{ width: '100%', margin: '5%' }}>
-            <CardItem header style={[styles.cardHeader, {backgroundColor: (item.privacy == 'public') ? '#5f9ea0': '#ffa500'}]}>
+            <CardItem header style={[styles.cardHeader, { backgroundColor: (item.privacy == 'public') ? '#5f9ea0' : '#ffa500' }]}>
               <Text style={{ color: 'white' }}>{item.eventName}</Text>
               <Right style={{ marginRight: -40 }}>
                 <Icon
@@ -348,7 +345,7 @@ export default class VaultScreen extends React.Component {
         <View>
           {this.renderDayLabel(item.date)}
           <Card style={{ width: '100%', margin: '5%' }}>
-            <CardItem header style={[styles.cardHeader, {backgroundColor: '#FF4136'}]}>
+            <CardItem header style={[styles.cardHeader, { backgroundColor: '#FF4136' }]}>
               <Text style={{ color: 'white' }}>{item.organizationName}</Text>
               <Right style={{ marginRight: -40 }}>
                 <Icon
@@ -454,9 +451,6 @@ export default class VaultScreen extends React.Component {
   }
 
   renderEmptyData = (date) => {
-
-    console.log(date)
-
     return (
       <View><Text>Click on Some Shit to Do Lit Shit</Text></View>
     );
@@ -483,7 +477,7 @@ export default class VaultScreen extends React.Component {
             // considered that the date in question is not yet loaded
             items={this.state.treasure}
             // callback that gets called when items for a certain month should be loaded (month became visible)
-            loadItemsForMonth={(month) => { console.log('trigger items loading') }}
+            loadItemsForMonth={(month) => { console.log('') }}
             // callback that fires when the calendar is opened or closed
             onCalendarToggled={(calendarOpened) => { console.log(calendarOpened) }}
             // callback that gets called on day press

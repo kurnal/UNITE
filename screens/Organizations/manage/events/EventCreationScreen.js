@@ -210,7 +210,6 @@ export default class EventCreationScreen extends React.Component {
                 </View>
 
                 <Form style={styles.formContainer}>
-
                     <Item style={{ flexDirection: 'row' }}>
                         <Icon active name="clipboard" style={[styles.icon, { flex: 1 }]} />
                         <Item picker style={{ borderBottomWidth: 0, flex: 20 }}>

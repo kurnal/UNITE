@@ -104,6 +104,9 @@ apply from: 'expo.gradle'
 // WHEN_PREPARING_SHELL_REMOVE_TO_HERE
 
 dependencies {
+    compile project(':react-native-background-timer')
+    compile project(':@react-native-community_async-storage')
+    compile project(':react-native-camera')
     compile project(':react-native-image-picker')
     compile project(':react-native-google-signin')
     compile project(':react-native-firebase')

@@ -314,6 +314,18 @@ PODS:
   - Protobuf (3.7.0)
   - React (0.57.1):
     - React/Core (= 0.57.1)
+  - react-native-background-timer (2.1.1):
+    - React
+  - react-native-camera (3.1.1):
+    - React
+    - react-native-camera/RCT (= 3.1.1)
+    - react-native-camera/RN (= 3.1.1)
+  - react-native-camera/RCT (3.1.1):
+    - React
+  - react-native-camera/RN (3.1.1):
+    - React
+  - react-native-image-picker (0.28.1):
+    - React
   - React/ART (0.57.1):
     - React/Core
   - React/Core (0.57.1):
@@ -360,6 +372,10 @@ PODS:
     - React/Core
     - React/fishhook
     - React/RCTBlob
+  - ReactNativePermissions (1.2.0):
+    - React
+  - RNCAsyncStorage (1.6.1):
+    - React
   - RNGoogleSignin (2.0.0):
     - GoogleSignIn (~> 4.4.0)
     - React
@@ -412,6 +428,9 @@ DEPENDENCIES:
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - GoogleSignIn
+  - react-native-background-timer (from `../node_modules/react-native-background-timer`)
+  - react-native-camera (from `../node_modules/react-native-camera`)
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - React/ART (from `../node_modules/react-native`)
   - React/Core (from `../node_modules/react-native`)
   - React/CxxBridge (from `../node_modules/react-native`)
@@ -425,6 +444,8 @@ DEPENDENCIES:
   - React/RCTText (from `../node_modules/react-native`)
   - React/RCTVibration (from `../node_modules/react-native`)
   - React/RCTWebSocket (from `../node_modules/react-native`)
+  - ReactNativePermissions (from `../node_modules/react-native-permissions`)
+  - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - RNGoogleSignin (from `../node_modules/react-native-google-signin`)
   - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -553,6 +574,16 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   React:
     :path: "../node_modules/react-native"
+  react-native-background-timer:
+    :path: "../node_modules/react-native-background-timer"
+  react-native-camera:
+    :path: "../node_modules/react-native-camera"
+  react-native-image-picker:
+    :path: "../node_modules/react-native-image-picker"
+  ReactNativePermissions:
+    :path: "../node_modules/react-native-permissions"
+  RNCAsyncStorage:
+    :path: "../node_modules/@react-native-community/async-storage"
   RNGoogleSignin:
     :path: "../node_modules/react-native-google-signin"
   yoga:
@@ -643,9 +674,14 @@ SPEC CHECKSUMS:
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
   Protobuf: 7a877b7f3e5964e3fce995e2eb323dbc6831bb5a
   React: 1fe0eb13d90b625d94c3b117c274dcfd2e760e11
+  react-native-background-timer: bb7a98c8e97fc7c290de2d423dd09ddb73dcbcbb
+  react-native-camera: 9c50d7def800895e7991ccda6203929553ceec9c
+  react-native-image-picker: f42de90075c5b1af53417af927631d909a1a746e
+  ReactNativePermissions: a8da737c35e77bf4ea1d4102d881b406fb791125
+  RNCAsyncStorage: e99188b8a89ea0edddc82d8831cd5142f4550fdc
   RNGoogleSignin: 40c1ac794c0eaaed2c6a42faf26972957e834f17
   yoga: b1ce48b6cf950b98deae82838f5173ea7cf89e85
 
-PODFILE CHECKSUM: d0d16f9ba07f78bef29755d281e6692edc255607
+PODFILE CHECKSUM: a577bec36c1843b071c7d4efe0144d6b94f44e4c
 
 COCOAPODS: 1.5.3

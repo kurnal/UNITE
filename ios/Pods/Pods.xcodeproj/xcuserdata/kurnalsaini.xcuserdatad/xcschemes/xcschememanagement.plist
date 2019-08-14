@@ -368,12 +368,19 @@
 			<key>orderHint</key>
 			<integer>59</integer>
 		</dict>
+		<key>RNCAsyncStorage.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>64</integer>
+		</dict>
 		<key>RNGoogleSignin.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>61</integer>
+			<integer>65</integer>
 		</dict>
 		<key>React.xcscheme</key>
 		<dict>
@@ -381,6 +388,13 @@
 			<false/>
 			<key>orderHint</key>
 			<integer>60</integer>
+		</dict>
+		<key>ReactNativePermissions.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>63</integer>
 		</dict>
 		<key>gRPC-C++-gRPCCertificates.xcscheme</key>
 		<dict>
@@ -431,12 +445,33 @@
 			<key>orderHint</key>
 			<integer>57</integer>
 		</dict>
-		<key>yoga.xcscheme</key>
+		<key>react-native-background-timer.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>67</integer>
+		</dict>
+		<key>react-native-camera.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>61</integer>
+		</dict>
+		<key>react-native-image-picker.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
 			<integer>62</integer>
+		</dict>
+		<key>yoga.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>66</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>

@@ -69,19 +69,19 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>Allow Effortless College Living to access your calendar</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow Effortless College Living to use your camera</string>
+	<string>Allow UNITE to use your device&apos;s camera</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Allow Effortless College Living to access your contacts</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Allow Effortless College Living to use your location</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Allow Effortless College Living to access your microphone</string>
+	<string>Allow UNITE to access your microphone</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Allow Effortless College Living to access your device's accelerometer</string>
+	<string>Allow Effortless College Living to access your device&apos;s accelerometer</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Give Effortless College Living permission to save photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Give Effortless College Living permission to access your photos</string>
+	<string>Give UNITE permission to access your photos</string>
 	<key>NSRemindersUsageDescription</key>
 	<string>Allow Effortless College Living to access your reminders</string>
 	<key>UILaunchStoryboardName</key>

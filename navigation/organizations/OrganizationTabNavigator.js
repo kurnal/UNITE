@@ -4,7 +4,13 @@ import { createStackNavigator, createBottomTabNavigator } from 'react-navigation
 
 import TabBarIcon from '../../components/TabBarIcon';
 import HomeScreen from '../../screens/Organizations/HomeScreen';
-import ManageScreenNavigator from './manage/ManageScreenNavigator';
+import ScannerScreen from '../../screens/Organizations/scanner/ScannerScreen'
+
+import ManageScreen from '../../screens/Organizations/manage/ManageScreen'
+import EventCreationScreen from '../../screens/Organizations/manage/events/EventCreationScreen';
+import MeetingsCreationScreen from '../../screens/Organizations/manage/meetings/MeetingsCreationScreen';
+import EditMeetings from '../../screens/Organizations/manage/meetings/creationForms/EditMeetings';
+
 import ProfileScreen from '../../screens/Organizations/profile/OrgProfileScreen';
 import SettingsScreen from '../../screens/SettingsScreen';
 
@@ -27,10 +33,33 @@ HomeStack.navigationOptions = {
   ),
 };
 
-const ManageStack = createStackNavigator({
-  Manage: ManageScreenNavigator,
-},{
+const ScannerStack = createStackNavigator({
+  Scanner: ScannerScreen,
+}, {
   headerMode: 'none'
+});
+
+ScannerStack.navigationOptions = {
+  tabBarLabel: 'Scanner',
+  tabBarIcon: ({ focused }) => (
+    <TabBarIcon
+      focused={focused}
+      name={Platform.OS === 'ios' ? 'ios-qr-scanner' : 'md-qr-scanner'}
+    />
+  ),
+};
+
+const ManageStack = createStackNavigator({
+  Manage: {
+    screen: ManageScreen,
+    navigationOptions: {
+      header: null
+    }
+  },
+  EventCreation: EventCreationScreen,
+  MeetingsCreation: MeetingsCreationScreen,
+  EditMeetings: EditMeetings,
+},{
 });
 
 ManageStack.navigationOptions = {
@@ -71,8 +100,11 @@ SettingsStack.navigationOptions = {
   ),
 };
 
+
+
 export default createBottomTabNavigator({
   HomeStack,
+  ScannerStack,
   ManageStack,
   ProfileStack,
   SettingsStack

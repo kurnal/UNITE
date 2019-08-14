@@ -34,6 +34,9 @@ import expolib_v1.okhttp3.OkHttpClient;
 
 // Needed for `react-native link`
 // import com.facebook.react.ReactApplication;
+import com.ocetnik.timer.BackgroundTimerPackage;
+import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
+import org.reactnative.camera.RNCameraPackage;
 import com.imagepicker.ImagePickerPackage;
 import co.apptailor.googlesignin.RNGoogleSigninPackage;
 import io.invertase.firebase.RNFirebasePackage;
@@ -53,6 +56,9 @@ public class MainApplication extends ExpoApplication implements AppLoaderPackage
 
         // Needed for `react-native link`
         // new MainReactPackage(),
+            new BackgroundTimerPackage(),
+            new AsyncStoragePackage(),
+            new RNCameraPackage(),
             new ImagePickerPackage(),
             new RNGoogleSigninPackage(),
             new RNFirebasePackage()
