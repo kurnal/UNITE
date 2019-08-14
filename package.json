@@ -39,6 +39,7 @@
     "react-native-radio-buttons": "^1.0.0",
     "react-native-scripts": "^1.12.0",
     "react-native-search-bar": "^3.4.2",
+    "react-native-simple-radio-button": "^2.7.3",
     "react-native-snap-carousel": "^3.8.0",
     "react-native-tag-autocomplete": "^1.0.21",
     "react-navigation": "^3.9.1",
