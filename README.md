@@ -1,3 +1,5 @@
+Our goal is to create a mobile platform that bridges the gap between students organizations connecting with their fellow students. We are going to empower the voice of clubs and organizations on campus so they can direct all their events, meetings, PR to students more seamlessly than just through flyers, emails, and word of mouth. We are also going to improve organization management through the design of various mobile tools within the app.
+
 # UNITE
 
 1) npm install -g expo-cli (make sure your node is above v10)
