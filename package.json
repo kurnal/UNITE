@@ -13,7 +13,7 @@
   "dependencies": {
     "@expo/samples": "2.1.1",
     "@react-native-community/async-storage": "^1.6.1",
-    "expo": "^32.0.0",
+    "expo": "^46.0.16",
     "expokit": "^32.1.1",
     "immutability-helper": "^3.0.0",
     "jsonpack": "^1.1.5",
